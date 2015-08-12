@@ -4,6 +4,15 @@ class Config:
 	"""General configurations"""
 	DEBUG = False
 	TESTING = False
+
+	URL = '/'  # URL for users to access
+	COPY_PATH = 'users/{username}'  # where file is copied to
+	REDIRECT_PATH = ''  # where users are redirected upon success
+	
+	BASE_URL = 'http://localhost:8002'
+	
+	ALLOWED_DOMAINS = [BASE_URL]
+	ALLOWED_FILETYPES = ['ipynb']
 	
 	# passed to app.run as kwargs
 	INIT = {
@@ -14,7 +23,12 @@ class Config:
 
 class ProductionConfig(Config):
 	"""Configuration for production"""
-	pass
+	URL = '/hub/interact'
+	COPY_PATH = '/home/{username}'
+	
+	ALLOWED_DOMAINS = 'http://data8.org'
+	
+	BASE_URL = 'http://dsten.berkeley.edu'
 
 
 class DevelopmentConfig(Config):

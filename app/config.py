@@ -11,7 +11,7 @@ class Config:
 	
 	BASE_URL = 'http://localhost:8002'
 	
-	ALLOWED_DOMAINS = [BASE_URL]
+	ALLOWED_DOMAIN = BASE_URL
 	ALLOWED_FILETYPES = ['ipynb']
 	
 	# passed to app.run as kwargs
@@ -26,7 +26,7 @@ class ProductionConfig(Config):
 	URL = '/hub/interact'
 	COPY_PATH = '/home/{username}'
 	
-	ALLOWED_DOMAINS = 'http://data8.org'
+	ALLOWED_DOMAIN = 'http://data8.org'
 	
 	BASE_URL = 'http://dsten.berkeley.edu'
 

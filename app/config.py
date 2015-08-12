@@ -2,17 +2,10 @@
 
 class Config:
 	"""General configurations"""
+	
+	# testing parameters
 	DEBUG = False
 	TESTING = False
-
-	URL = '/'  # URL for users to access
-	COPY_PATH = 'users/{username}'  # where file is copied to
-	REDIRECT_PATH = ''  # where users are redirected upon success
-	
-	BASE_URL = 'http://localhost:8002'
-	
-	ALLOWED_DOMAIN = BASE_URL
-	ALLOWED_FILETYPES = ['ipynb']
 	
 	# passed to app.run as kwargs
 	INIT = {
@@ -23,19 +16,77 @@ class Config:
 
 class ProductionConfig(Config):
 	"""Configuration for production"""
+	
+	# URL for users to access
 	URL = '/hub/interact'
+	
+	# where file is copied to
 	COPY_PATH = '/home/{username}'
 	
+	# where users are redirected upon success
+	REDIRECT_PATH = '/user/{username}/notebooks/{path}'
+	
+	# allowed sources for file parameter in query
 	ALLOWED_DOMAIN = 'http://data8.org'
 	
+	# base_url for the program
 	BASE_URL = 'http://dsten.berkeley.edu'
+
+	# alowed file extensions
+	ALLOWED_FILETYPES = ['ipynb']
+	
+	# app.run parameters
+	INIT = {
+		'host': '127.0.0.1',
+	    'port': 80
+	}
 
 
 class DevelopmentConfig(Config):
 	"""Configuration for development mode"""
+	
+	# testing parameters
 	DEBUG = True
+
+	# URL for users to access
+	URL = '/'
+
+	# where file is copied to
+	COPY_PATH = 'app/static/users/{username}/{destination}'
+
+	# where users are redirected upon success
+	REDIRECT_PATH = '/static/users/{username}/{destination}'
+
+	# allowed sources for file parameter in query
+	ALLOWED_DOMAIN = 'http://localhost:8000'
+
+	# base_url for the program
+	BASE_URL = 'http://localhost:8002'
+
+	# allowed file extensions
+	ALLOWED_FILETYPES = ['ipynb']
 
 
 class TestConfig(Config):
 	"""Configuration for testing mode"""
+	
+	# testing parameters
 	TESTING = True
+
+	# URL for users to access
+	URL = '/'
+
+	# where file is copied to
+	COPY_PATH = 'app/static/users/{username}'
+
+	# where users are redirected upon success
+	REDIRECT_PATH = '/static/users/{username}/{destination}'
+
+	# allowed sources for file parameter in query
+	ALLOWED_DOMAIN = 'http://localhost:8000'
+
+	# base_url for the program
+	BASE_URL = 'http://localhost:8002'
+
+	# allowed file extensions
+	ALLOWED_FILETYPES = ['ipynb']

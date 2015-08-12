@@ -1,5 +1,6 @@
 """Application body"""
 import os
+from urllib.error import HTTPError
 from urllib.request import urlopen
 from flask import Flask, redirect
 from webargs import Arg
@@ -24,22 +25,47 @@ def create_app(config='production'):
 	@use_args(index_args)
 	def view(args):
 		"""URL to access"""
-		redirect_url, username = authenticate()
-		if username:
-			assert args['file'].startswith(app.config['ALLOWED_DOMAIN'])
-			file_contents = urlopen(args['file']).read()
-			destination = os.path.join(
-				app.config['COPY_PATH'].format(username=username),
-				args['destination'])
-			assert '.' in destination and \
-				destination.split('.')[-1] in app.config['ALLOWED_FILETYPES']
-			open(destination, 'w').write(file_contents)
-			redirect_url = app.config['REDIRECT_PATH'].format(path=args['destination'])
+		try:
+			redirect_url, username = authenticate()
+			if username:
+				file_contents = get_remote_file(app.config, args['file'])
+				destination = args['destination']
+				path = construct_path(app.config['COPY_PATH'], locals())
+				write_to_destination(file_contents, path, app.config)
+				redirect_url = construct_path(app.config['REDIRECT_PATH'], locals())
+		except HTTPError:
+			return 'Source file "{}" does not exist or is not accessible.'.\
+				format(args['file'])
 		return redirect(redirect_url)
-			
+	
 	return app
 
 
 def authenticate():
 	"""Authenticates the user with the local JupyterHub installation"""
-	return None, 'okay'
+	return None, 'JohnnyAppleseed'
+
+
+def get_remote_file(config, source):
+	"""fetches remote file"""
+	assert source.startswith(config['ALLOWED_DOMAIN'])
+	return urlopen(source).read().decode('utf-8')
+
+
+def write_to_destination(file_contents, destination, config):
+	"""Write file to destination on server"""
+	
+	# check that this filetype is allowed (ideally, not an executable)
+	assert '.' in destination and \
+	       destination.split('.')[-1] in config['ALLOWED_FILETYPES']
+	
+	# make user directory if it doesn't exist
+	os.makedirs('/'.join(destination.split('/')[:-1]), exist_ok=True)
+	
+	# write the file
+	open(destination, 'w').write(file_contents)
+	
+	
+def construct_path(path, format, *args):
+	"""constructs a path using locally available variables"""
+	return os.path.join(path.format(**format), *args)

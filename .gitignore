@@ -59,3 +59,6 @@ target/
 # IDE
 .idea/
 *.iml
+
+# Ignore copied files
+app/static/*

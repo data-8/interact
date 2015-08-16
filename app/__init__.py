@@ -26,17 +26,18 @@ def create_app(config='production'):
 	def view(args):
 		"""URL to access"""
 		try:
-			redirect_url, username = authenticate()
-			if username:
+			redirection = username = authenticate()
+			if isinstance(username, str):
 				file_contents = get_remote_file(app.config, args['file'])
 				destination = args['destination']
 				path = construct_path(app.config['COPY_PATH'], locals())
 				write_to_destination(file_contents, path, app.config)
 				redirect_url = construct_path(app.config['REDIRECT_PATH'], locals())
+				redirection = redirect(redirect_url)
 		except HTTPError:
 			return 'Source file "{}" does not exist or is not accessible.'.\
 				format(args['file'])
-		return redirect(redirect_url)
+		return redirection
 	
 	return app
 

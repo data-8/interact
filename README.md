@@ -14,7 +14,7 @@ side server for UC Berkeley DS8's JuypterHub deployment to copy remote notebooks
 Use `py.test tests`, or to see it in action:
  
 1. From `remote` start a new http server `python -m http.server`.
-2. Visit `http://localhost:8002?file=http://localhost:8000/test.json&destination=test.ipynb`
+2. Visit `http://localhost:8002/?file=http://localhost:8000/test.ipynb&destination=test.ipynb`
 3. You will be redirected to the file on server; your browser may download 
 instead of serving it.
 
@@ -22,3 +22,6 @@ instead of serving it.
 
 Configurations are in `app/config.py`. Modify attributes accordingly in 
 `ProductionConfig`.
+
+WSGI script and Apache configuration file assumes that the program is installed 
+under `/var/www/interact`.

@@ -5,19 +5,55 @@ original from the JupyterHub repository
 https://github.com/jupyter/nbgrader/blob/master/nbgrader/auth/hubauth.py
 
 """
-from flask import request, redirect, abort
+import json
+import logging
+import os
+import requests
+from flask import request, redirect, abort, current_app
 
 
 class HubAuth:
 	"""Jupyter hub authenticator."""
+	
+	def __init__(self):
+		self.config = current_app.config
+		self.log = logging.getLogger('interact')
+		
+		# base url for the website
+		self.hub_base_url = self.config['BASE_URL']
+		self._hubapi_base_url = self.config['BASE_URL']
+		
+		# token for JupyterHub API
+		self.hubapi_token = self.config['API_TOKEN']
+		
+		# where to send authenticated users
+		self.remap_url = self.config['URL']
+		
+		# cookie?
+		self.hubapi_cookie = self.config['COOKIE']
 
-	@property
-	def base_url(self):
-		return self._base_url
+	def _hubapi_request(self, *args, **kwargs):
+		"""Makes an API request to the local JupyterHub installation"""
+		return self._request('hubapi', *args, **kwargs)
+
+	def _request(self, service, relative_path, method='GET', body=None):
+		base_url = getattr(self, '_%s_base_url' % service)
+		token = getattr(self, '%s_token' % service)
+
+		data = body
+		if isinstance(data, (dict,)):
+			data = json.dumps(data)
+
+		return requests.request(method, base_url + relative_path, headers={
+			'Authorization': 'token %s' % token
+		}, data=data)
 
 	def authenticate(self):
 		"""Authenticate a request.
 		Returns username or flask redirect."""
+		
+		if self.config['DEBUG'] or self.config['TEST']:
+			return 'sample_username'
 	
 		# If auth cookie doesn't exist, redirect to the login page with
 		# next set to redirect back to the this page.

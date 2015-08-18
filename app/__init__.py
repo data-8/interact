@@ -2,6 +2,7 @@
 import os
 from urllib.error import HTTPError
 from urllib.request import urlopen
+from app.auth import HubAuth
 from flask import Flask, redirect
 from webargs import Arg
 from webargs.flaskparser import use_args
@@ -44,7 +45,7 @@ def create_app(config='production'):
 
 def authenticate():
 	"""Authenticates the user with the local JupyterHub installation"""
-	return None, 'JohnnyAppleseed'
+	return HubAuth().authenticate()
 
 
 def get_remote_file(config, source):

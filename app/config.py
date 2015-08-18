@@ -20,6 +20,9 @@ class ProductionConfig(Config):
 	# URL for users to access
 	URL = '/hub/interact'
 	
+	# JupyterHub API token
+	API_TOKEN = 'your_token_here'
+	
 	# where file is copied to
 	COPY_PATH = '/home/{username}'
 	
@@ -51,6 +54,9 @@ class DevelopmentConfig(Config):
 	# URL for users to access
 	URL = '/'
 
+	# JupyterHub API token
+	API_TOKEN = 'your_token_here'
+
 	# where file is copied to
 	COPY_PATH = 'app/static/users/{username}/{destination}'
 
@@ -75,6 +81,9 @@ class TestConfig(Config):
 
 	# URL for users to access
 	URL = '/'
+
+	# JupyterHub API token
+	API_TOKEN = 'your_token_here'
 
 	# where file is copied to
 	COPY_PATH = 'app/static/users/{username}'

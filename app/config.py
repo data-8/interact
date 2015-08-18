@@ -22,10 +22,10 @@ class ProductionConfig(Config):
 	
 	# JupyterHub API token
 	API_TOKEN = 'your_token_here'
-	
+
 	# Cookie name?
 	COOKIE = 'interact'
-	
+
 	# where file is copied to
 	COPY_PATH = '/home/{username}'
 	

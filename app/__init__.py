@@ -17,9 +17,6 @@ def create_app(config='production'):
 	
 	index_args = {
 		'file': Arg(str, required=True),
-		# must include filename /path/to/file.ipynb relative to the directory 
-		# specified in config
-		'destination': Arg(str, required=True)
 	}
 	
 	@app.route(app.config['URL'])
@@ -30,7 +27,7 @@ def create_app(config='production'):
 			redirection = username = authenticate()
 			if isinstance(username, str):
 				file_contents = get_remote_file(app.config, args['file'])
-				destination = args['destination']
+				destination = os.path.basename(args['file'])
 				path = construct_path(app.config['COPY_PATH'], locals())
 				destination = write_to_destination(file_contents, path, destination, app.config)
 				print(' * Wrote {}'.format(path + '/' + destination))

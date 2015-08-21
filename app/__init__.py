@@ -19,7 +19,7 @@ def create_app(config='production'):
 		'file': Arg(str, required=True),
 		# must include filename /path/to/file.ipynb relative to the directory 
 		# specified in config
-	    'destination': Arg(str, required=True)
+		'destination': Arg(str, required=True)
 	}
 	
 	@app.route(app.config['URL'])
@@ -32,7 +32,9 @@ def create_app(config='production'):
 				file_contents = get_remote_file(app.config, args['file'])
 				destination = args['destination']
 				path = construct_path(app.config['COPY_PATH'], locals())
-				write_to_destination(file_contents, path, app.config)
+				destination = write_to_destination(file_contents, path, destination, app.config)
+				print(' * Wrote {}'.format(path + '/' + destination))
+				chown(username, path, destination)
 				redirect_url = construct_path(app.config['REDIRECT_PATH'], locals())
 				redirection = redirect(redirect_url)
 		except HTTPError:
@@ -42,31 +44,39 @@ def create_app(config='production'):
 	
 	return app
 
+def chown(username, path, destination):
+	'''Set owner and group of file to that of the parent directory.'''
+	s = os.stat(path)
+	os.chown(os.path.join(path, destination), s.st_uid, s.st_gid)
 
 def authenticate():
 	"""Authenticates the user with the local JupyterHub installation"""
 	return HubAuth().authenticate()
-
 
 def get_remote_file(config, source):
 	"""fetches remote file"""
 	assert source.startswith(config['ALLOWED_DOMAIN'])
 	return urlopen(source).read().decode('utf-8')
 
-
-def write_to_destination(file_contents, destination, config):
+def write_to_destination(file_contents, path, destination, config):
 	"""Write file to destination on server"""
 	
 	# check that this filetype is allowed (ideally, not an executable)
 	assert '.' in destination and \
-	       destination.split('.')[-1] in config['ALLOWED_FILETYPES']
+		destination.split('.')[-1] in config['ALLOWED_FILETYPES']
 	
+	if os.path.exists(os.path.join(path, destination)):
+		root = destination.rsplit('.', 1)[0]
+		suffix = destination.split('.')[-1]
+		destination = '{}-copy.{}'.format(root, suffix)
+		return write_to_destination(file_contents, path, destination, config)
+
 	# make user directory if it doesn't exist
-	os.makedirs('/'.join(destination.split('/')[:-1]), exist_ok=True)
+	os.makedirs('/'.join(path.split('/')[:-1]), exist_ok=True)
 	
 	# write the file
-	open(destination, 'w').write(file_contents)
-	
+	open(os.path.join(path, destination), 'w').write(file_contents)
+	return destination
 	
 def construct_path(path, format, *args):
 	"""constructs a path using locally available variables"""

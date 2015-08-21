@@ -1,4 +1,4 @@
-
+import os
 
 class Config:
 	"""General configurations"""
@@ -10,7 +10,7 @@ class Config:
 	# passed to app.run as kwargs
 	INIT = {
 		'host': '127.0.0.1',
-	    'port': 8002
+		'port': 8002
 	}
 
 
@@ -18,33 +18,33 @@ class ProductionConfig(Config):
 	"""Configuration for production"""
 	
 	# URL for users to access
-	URL = '/hub/interact'
+	URL = '/hub/interact/'
 	
 	# JupyterHub API token
-	API_TOKEN = 'your_token_here'
+	API_TOKEN = os.environ['JPY_API_TOKEN']
 
 	# Cookie name?
-	COOKIE = 'interact'
+	COOKIE = 'jupyter-hub-token'
 
 	# where file is copied to
 	COPY_PATH = '/home/{username}'
 	
 	# where users are redirected upon success
-	REDIRECT_PATH = '/user/{username}/notebooks/{path}'
+	REDIRECT_PATH = '/user/{username}/notebooks/{destination}'
 	
 	# allowed sources for file parameter in query
 	ALLOWED_DOMAIN = 'http://data8.org'
 	
 	# base_url for the program
-	BASE_URL = 'http://dsten.berkeley.edu'
+	BASE_URL = 'https://ds8.berkeley.edu'
 
 	# alowed file extensions
 	ALLOWED_FILETYPES = ['ipynb']
 	
 	# app.run parameters
 	INIT = {
-		'host': '127.0.0.1',
-	    'port': 80
+		'host': '0.0.0.0',
+		'port': 8002
 	}
 
 

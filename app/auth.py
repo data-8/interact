@@ -52,12 +52,12 @@ class HubAuth:
 		"""Authenticate a request.
 		Returns username or flask redirect."""
 		
-		if self.config['DEBUG'] or self.config['TEST']:
-			return 'sample_username'
+		#if self.config['DEBUG'] or self.config['TEST']:
+		#	return 'sample_username'
 	
 		# If auth cookie doesn't exist, redirect to the login page with
 		# next set to redirect back to the this page.
-		if 'jupyter-hub-token' not in request.cookies:
+		if self.hubapi_cookie not in request.cookies:
 			return redirect(self.hub_base_url + '/hub/login?next=' + self.remap_url)
 		cookie = request.cookies[self.hubapi_cookie]
 	
@@ -79,7 +79,7 @@ class HubAuth:
 		# this will happen if the JPY_API_TOKEN is incorrect
 		elif response.status_code == 403:
 			self.log.error("I don't have permission to verify cookies, my auth token may have expired: [%i] %s", response.status_code, response.reason)
-			abort(500, "Permission failure checking authorization, I may need to be restarted")
+			abort(403, "Permission failure checking authorization, I may need to be restarted")
 	
 		# this will happen if jupyterhub has been restarted but the user cookie
 		# is still the old one, in which case we should reauthenticate

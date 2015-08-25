@@ -58,12 +58,10 @@ def get_remote_file(config, source):
 def write_to_destination(file_contents, path, destination, config):
 	"""Write file to destination on server"""
 	
-	print(' * write_to_destination')
 	# check that this filetype is allowed (ideally, not an executable)
 	assert '.' in destination and \
 		destination.split('.')[-1] in config['ALLOWED_FILETYPES']
 	
-	print(' * asserted')
 	if os.path.exists(os.path.join(path, destination)):
 		root = destination.rsplit('.', 1)[0]
 		suffix = destination.split('.')[-1]
@@ -72,11 +70,9 @@ def write_to_destination(file_contents, path, destination, config):
 
 	# make user directory if it doesn't exist
 	os.makedirs('/'.join(path.split('/')[:-1]), exist_ok=True)
-	print(' * madedirs')
 	
 	# write the file
 	open(os.path.join(path, destination), 'w').write(file_contents)
-	print(' * wrote file')
 	return destination
 	
 def construct_path(path, format, *args):

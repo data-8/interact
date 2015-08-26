@@ -89,7 +89,7 @@ def write_to_destination(file_contents, path, destination, config):
 	
 	# write the file
 	try:
-		open(os.path.join(path, destination), 'w').write(file_contents)
+		open(os.path.join(path, destination), 'w').write(file_contents.encode('utf-8'))
 	except Exception as e:
 		f.write('EXCEPTION\n'); f.flush()
 		f.write(str(e)); f.flush()

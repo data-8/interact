@@ -26,7 +26,7 @@ def create_app(config='production'):
 		try:
 			redirection = username = authenticate()
 			if isinstance(username, str):
-				f = open('/tmp/i.log')
+				f = open('/tmp/i.log', 'a')
 				f.write('view\n'); f.flush()
 				file_contents = get_remote_file(app.config, args['file'])
 				f.write('file {}\n'.format(args['file'])); f.flush()

@@ -88,7 +88,13 @@ def write_to_destination(file_contents, path, destination, config):
 	f.write('about to write {} {}\n'.format(path, destination)); f.flush()
 	
 	# write the file
-	open(os.path.join(path, destination), 'w').write(file_contents)
+	try:
+		open(os.path.join(path, destination), 'w').write(file_contents)
+	except Exception as e:
+		f.write('EXCEPTION\n'); f.flush()
+		f.write(str(e)); f.flush()
+		raise e
+		
 	f.write('wrote\n'); f.flush()
 	return destination
 	

@@ -58,7 +58,7 @@ class HubAuth:
 		# If auth cookie doesn't exist, redirect to the login page with
 		# next set to redirect back to the this page.
 		if self.hubapi_cookie not in request.cookies:
-			return redirect(self.hub_base_url + '/hub/login?next=' + self.remap_url)
+			return redirect(self.hub_base_url + '/hub?next=' + self.remap_url)
 		cookie = request.cookies[self.hubapi_cookie]
 	
 		# Check with the Hub to see if the auth cookie is valid.
@@ -85,7 +85,7 @@ class HubAuth:
 		# is still the old one, in which case we should reauthenticate
 		elif response.status_code == 404:
 			self.log.warn("Failed to check authorization, this probably means the user's cookie token is invalid or expired: [%i] %s", response.status_code, response.reason)
-			return redirect(self.hub_base_url + '/hub/login?next=' + self.remap_url)
+			return redirect(self.hub_base_url + '/hub?next=' + self.remap_url)
 	
 		# generic catch-all for upstream errors
 		elif response.status_code >= 500:
@@ -99,6 +99,6 @@ class HubAuth:
 	
 		else:
 			# Auth invalid, reauthenticate.
-			return redirect(self.hub_base_url + '/hub/login?next=' + self.remap_url)
+			return redirect(self.hub_base_url + '/hub?next=' + self.remap_url)
 		
 		assert False, 'Something went wrong.'

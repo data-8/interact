@@ -61,18 +61,13 @@ class HubAuth:
 			return redirect(self.hub_base_url + '/hub/login?next=' + self.remap_url)
 		cookie = request.cookies[self.hubapi_cookie]
 	
-		f = open('/tmp/a.log', 'w')
-		f.write('got cookie\n'); f.flush()
 		# Check with the Hub to see if the auth cookie is valid.
 		response = self._hubapi_request('/hub/api/authorizations/cookie/' + self.hubapi_cookie + '/' + cookie)
-		f.write('got response\n'); f.flush()
 		if response.status_code == 200:
 	
-			f.write('got response 200\n'); f.flush()
 			#  Auth information recieved.
 			data = response.json()
 			if 'name' in data:
-				f.write('got name {}\n'.format(data['name'])); f.flush()
 				return data['name']
 	
 			# this shouldn't happen, but possibly might if the JupyterHub API

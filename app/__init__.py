@@ -26,19 +26,12 @@ def create_app(config='production'):
 		try:
 			redirection = username = authenticate()
 			if isinstance(username, str):
-				f = open('/tmp/i.log', 'a')
-				f.write('view\n'); f.flush()
 				file_contents = get_remote_file(app.config, args['file'])
-				f.write('file {}\n'.format(args['file'])); f.flush()
 				destination = os.path.basename(args['file'])
-				f.write('destination {}\n'.format(destination)); f.flush()
 				path = construct_path(app.config['COPY_PATH'], locals())
-				f.write('path {}\n'.format(path)); f.flush()
 				destination = write_to_destination(file_contents, path, destination, app.config)
-				f.write('destination {}\n'.format(destination)); f.flush()
 				#print(' * Wrote {}'.format(path + '/' + destination))
 				chown(username, path, destination)
-				f.write('chowned: {} {} {}\n'.format(username, path, destination)); f.flush()
 				redirect_url = construct_path(app.config['REDIRECT_PATH'], locals())
 				redirection = redirect(redirect_url)
 		except HTTPError:
@@ -65,37 +58,22 @@ def get_remote_file(config, source):
 def write_to_destination(file_contents, path, destination, config):
 	"""Write file to destination on server"""
 	
-	f = open('/tmp/w.log', 'a')
-	f.write('about to assert\n'); f.flush()
 	# check that this filetype is allowed (ideally, not an executable)
 	assert '.' in destination and \
 		destination.split('.')[-1] in config['ALLOWED_FILETYPES']
-	f.write('asserted\n'); f.flush()
 	
 	if os.path.exists(os.path.join(path, destination)):
-		f.write('exists\n'); f.flush()
 		root = destination.rsplit('.', 1)[0]
-		f.write('root {}\n'.format(root)); f.flush()
 		suffix = destination.split('.')[-1]
-		f.write('suffix {}\n'.format(suffix)); f.flush()
 		destination = '{}-copy.{}'.format(root, suffix)
-		f.write('destination {}\n'.format(destination)); f.flush()
 		return write_to_destination(file_contents, path, destination, config)
 
-	f.write('about to makedir {}\n'.format(path)); f.flush()
 	# make user directory if it doesn't exist
 	os.makedirs('/'.join(path.split('/')[:-1]), exist_ok=True)
-	f.write('about to write {} {}\n'.format(path, destination)); f.flush()
 	
 	# write the file
-	try:
-		open(os.path.join(path, destination), 'wb').write(file_contents.encode('utf-8'))
-	except Exception as e:
-		f.write('EXCEPTION\n'); f.flush()
-		f.write(str(e)); f.flush()
-		raise e
+	open(os.path.join(path, destination), 'wb').write(file_contents.encode('utf-8'))
 		
-	f.write('wrote\n'); f.flush()
 	return destination
 	
 def construct_path(path, format, *args):

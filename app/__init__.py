@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 from urllib.request import urlopen
 from app.auth import HubAuth
 from flask import Flask, redirect
-from webargs import Arg
+from webargs import fields
 from webargs.flaskparser import use_args
 
 
@@ -16,7 +16,7 @@ def create_app(config='production'):
 	app.config.from_object('app.config.%sConfig' % config.capitalize())
 	
 	index_args = {
-		'file': Arg(str, required=True)
+		'file': fields.Str(required=True)
 	}
 	
 	@app.route(app.config['URL'])

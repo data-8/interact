@@ -22,41 +22,54 @@ def create_app(config='production'):
     @app.route(app.config['URL'])
     @use_args(index_args)
     def view(args):
-        """URL to access"""
+        """
+        /?file=file_url
+
+        Authenticates, then downloads file into user's file system.
+        """
         try:
+            # authenticate() returns either a username as a string or a redirect
             redirection = username = authenticate()
-            if isinstance(username, str):
+
+            is_authenticated = isinstance(username, str)
+            if is_authenticated:
                 file_contents = get_remote_file(app.config, args['file'])
                 destination = os.path.basename(args['file'])
                 path = construct_path(app.config['COPY_PATH'], locals())
-                destination = write_to_destination(file_contents, path, destination, app.config)
+
+                # destination might change if the file results in a copy
+                destination = write_to_destination(
+                    file_contents, path, destination, app.config)
                 #print(' * Wrote {}'.format(path + '/' + destination))
                 chown(username, path, destination)
-                redirect_url = construct_path(app.config['REDIRECT_PATH'], locals())
+
+                redirect_url = construct_path(
+                    app.config['REDIRECT_PATH'], locals())
                 redirection = redirect(redirect_url)
         except HTTPError:
             return 'Source file "{}" does not exist or is not accessible.'.\
                 format(args['file'])
+
         return redirection
 
     return app
 
 def chown(username, path, destination):
-    '''Set owner and group of file to that of the parent directory.'''
+    """Set owner and group of file to that of the parent directory."""
     s = os.stat(path)
     os.chown(os.path.join(path, destination), s.st_uid, s.st_gid)
 
 def authenticate():
-    """Authenticates the user with the local JupyterHub installation"""
+    """Authenticates the user with the local JupyterHub installation."""
     return HubAuth().authenticate()
 
 def get_remote_file(config, source):
-    """fetches remote file"""
+    """Fetches file, throws an HTTPError if the file is not accessible."""
     assert source.startswith(config['ALLOWED_DOMAIN'])
     return urlopen(source).read().decode('utf-8')
 
 def write_to_destination(file_contents, path, destination, config):
-    """Write file to destination on server"""
+    """Write file to destination on server."""
 
     # check that this filetype is allowed (ideally, not an executable)
     assert '.' in destination and \
@@ -77,5 +90,5 @@ def write_to_destination(file_contents, path, destination, config):
     return destination
 
 def construct_path(path, format, *args):
-    """constructs a path using locally available variables"""
+    """Constructs a path using locally available variables."""
     return os.path.join(path.format(**format), *args)

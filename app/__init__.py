@@ -19,7 +19,7 @@ def create_app(config='production'):
     index_args = {
         'file': fields.Str(),
 
-        'git': fields.Str(),
+        'repo': fields.Str(),
         'path': fields.List(fields.Str()),
     }
 
@@ -27,18 +27,22 @@ def create_app(config='production'):
     @use_args(index_args)
     def view(args):
         """
-        ?file=file_url
-        OR (exclusive)
-        ?git=github_url&path=file_or_folder_name&path=other_folder
+        ?file=public_file_url
+        Example: ?file=http://localhost:8000/README.md
 
-        Authenticates, then downloads file into user's file system.
+        OR (exclusive)
+
+        ?repo=dsten_github_repo_name&path=file_or_folder_name&path=other_folder
+        Example: ?repo=textbook&path=notebooks&path=chapter1%2Fintroduction.md
+
+        Authenticates, then downloads file / git pulls into user's file system.
         """
         is_file_request = ('file' in args)
-        is_git_request = ('git' in args and 'path' in args)
+        is_git_request = ('repo' in args and 'path' in args)
         valid_request = xor(is_file_request, is_git_request)
         if not valid_request:
             return "Request was malformed. It must contain either the file " \
-                "param or both the git and path params."
+                "param or both the repo and path params."
 
         # authenticate() returns either a username as a string or a redirect
         redirection = username = authenticate()
@@ -55,7 +59,7 @@ def create_app(config='production'):
         elif is_git_request:
             redirection = pull_from_github(
                 username=username,
-                github_url=args['git'],
+                repo=args['repo'],
                 paths=args['path'],
                 config=app.config,
             )

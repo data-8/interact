@@ -5,11 +5,12 @@ from flask import Flask, redirect
 
 from . import util
 
+
 def download_file_and_redirect(**kwargs):
     """
-    Must be called with username, file_url, config keyword args.
-
     Downloads the file from file_url and saves it into the COPY_PATH in config.
+
+    Must be called with username, file_url, config keyword args.
     """
     username = kwargs['username']
     file_url = kwargs['file_url']
@@ -25,7 +26,7 @@ def download_file_and_redirect(**kwargs):
         # destination might change if the file results in a copy
         destination = _write_to_destination(
             file_contents, path, destination, config)
-        #print(' * Wrote {}'.format(path + '/' + destination))
+        # print(' * Wrote {}'.format(path + '/' + destination))
         util.chown(username, path, destination)
 
         redirect_url = util.construct_path(
@@ -36,10 +37,12 @@ def download_file_and_redirect(**kwargs):
         return 'Source file "{}" does not exist or is not accessible.'.\
             format(file_url)
 
+
 def _get_remote_file(config, source):
     """Fetches file, throws an HTTPError if the file is not accessible."""
     assert source.startswith(config['ALLOWED_DOMAIN'])
     return urlopen(source).read().decode('utf-8')
+
 
 def _write_to_destination(file_contents, path, destination, config):
     """Write file to destination on server."""
@@ -58,6 +61,7 @@ def _write_to_destination(file_contents, path, destination, config):
     os.makedirs('/'.join(path.split('/')[:-1]), exist_ok=True)
 
     # write the file
-    open(os.path.join(path, destination), 'wb').write(file_contents.encode('utf-8'))
+    with open(os.path.join(path, destination), 'wb') as outfile:
+        outfile.write(file_contents.encode('utf-8'))
 
     return destination

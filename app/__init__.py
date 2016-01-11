@@ -1,14 +1,13 @@
 """Application body"""
-import os
 from operator import xor
-from urllib.error import HTTPError
-from urllib.request import urlopen
 from app.auth import HubAuth
-from flask import Flask, redirect
-from webargs import fields, missing
+from flask import Flask
+from webargs import fields
 from webargs.flaskparser import use_args
 
 from .download_file_and_redirect import download_file_and_redirect
+from .pull_from_github import pull_from_github
+
 
 def create_app(config='production'):
 
@@ -29,8 +28,8 @@ def create_app(config='production'):
     def view(args):
         """
         ?file=file_url
-        OR
-        ?git=github_url&path=file_or_folder_name
+        OR (exclusive)
+        ?git=github_url&path=file_or_folder_name&path=other_folder
 
         Authenticates, then downloads file into user's file system.
         """
@@ -49,14 +48,22 @@ def create_app(config='production'):
 
         if is_file_request:
             redirection = download_file_and_redirect(
-                username = username,
-                file_url = args['file'],
-                config = app.config,
+                username=username,
+                file_url=args['file'],
+                config=app.config,
+            )
+        elif is_git_request:
+            redirection = pull_from_github(
+                username=username,
+                github_url=args['git'],
+                paths=args['path'],
+                config=app.config,
             )
 
         return redirection
 
     return app
+
 
 def authenticate():
     """Authenticates the user with the local JupyterHub installation."""

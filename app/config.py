@@ -64,7 +64,7 @@ class DevelopmentConfig(Config):
     COOKIE = 'interact'
 
     # where file is copied to
-    COPY_PATH = 'app/static/users/{username}/{destination}'
+    COPY_PATH = 'app/static/users/{username}'
 
     # where users are redirected upon success
     REDIRECT_PATH = '/static/users/{username}/{destination}'

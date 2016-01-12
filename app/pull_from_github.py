@@ -9,6 +9,7 @@ GH_PAGES_BRANCH = 'gh-pages'
 
 log = None
 
+
 def pull_from_github(**kwargs):
     """
     Initializes git repo if needed, then pulls new content from Github using
@@ -22,8 +23,8 @@ def pull_from_github(**kwargs):
 
     Kwargs:
         username (str): The username of the JupyterHub user
-        repo_name (str): The repo under the dsten org to pull from, eg. textbook
-            or health-connector.
+        repo_name (str): The repo under the dsten org to pull from, eg.
+            textbook or health-connector.
         paths (list of str): The folders and file names to pull.
         config (Config): The config for this environment.
     """
@@ -46,12 +47,6 @@ def pull_from_github(**kwargs):
 
     repo = git.Repo(repo_dir)
     _make_commit_if_dirty(repo)
-
-    sparsecheckout_path = os.path.join(repo_dir,
-        '.git', 'info', 'sparse-checkout')
-
-    with open(sparsecheckout_path) as info_file:
-        log('Sparse-checkout file: {}'.format(info_file.readlines()))
 
     _pull_and_resolve_conflicts(repo)
 
@@ -78,6 +73,7 @@ def _initialize_repo(repo_name, repo_dir):
 
     log('Repo {} initialized'.format(repo_name))
 
+
 def _add_sparse_checkout_paths(repo_dir, paths):
     """
     Runs the equivalent of
@@ -87,23 +83,24 @@ def _add_sparse_checkout_paths(repo_dir, paths):
     for each path in paths but also avoids duplicates.
     """
     sparsecheckout_path = os.path.join(repo_dir,
-        '.git', 'info', 'sparse-checkout')
+                                       '.git', 'info', 'sparse-checkout')
 
     existing_paths = []
     try:
         with open(sparsecheckout_path) as info_file:
             existing_paths = [line.strip().strip('/')
-                for line in info_file.readlines()]
+                              for line in info_file.readlines()]
     except FileNotFoundError:
         pass
 
-    log(existing_paths)
+    log('Existing paths in sparse-checkout: {}'.format(existing_paths))
     to_write = [path for path in paths if path not in existing_paths]
     with open(sparsecheckout_path, 'a') as info_file:
         for path in to_write:
             info_file.write('/{}\n'.format(path))
 
     log('{} written to sparse-checkout'.format(to_write))
+
 
 def _make_commit_if_dirty(repo):
     """
@@ -115,6 +112,7 @@ def _make_commit_if_dirty(repo):
         git_cli.commit('-m', 'WIP')
 
         log('Made WIP commit')
+
 
 def _pull_and_resolve_conflicts(repo):
     """

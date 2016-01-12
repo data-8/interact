@@ -36,6 +36,7 @@ def create_app(config='production'):
         Example: ?repo=textbook&path=notebooks&path=chapter1%2Fintroduction.md
 
         Authenticates, then downloads file / git pulls into user's file system.
+        Note: Only the gh-pages branch is pulled from Github.
         """
         is_file_request = ('file' in args)
         is_git_request = ('repo' in args and 'path' in args)
@@ -59,7 +60,7 @@ def create_app(config='production'):
         elif is_git_request:
             redirection = pull_from_github(
                 username=username,
-                repo=args['repo'],
+                repo_name=args['repo'],
                 paths=args['path'],
                 config=app.config,
             )

@@ -7,8 +7,6 @@ from . import util
 DSTEN_ORG = 'https://github.com/dsten/'
 GH_PAGES_BRANCH = 'gh-pages'
 
-log = None
-
 
 def pull_from_github(**kwargs):
     """
@@ -34,9 +32,6 @@ def pull_from_github(**kwargs):
     config = kwargs['config']
 
     assert username and repo_name and paths and config
-
-    global log
-    log = util.logger(config)
 
     repo_dir = util.construct_path(config['COPY_PATH'], locals(), repo_name)
 
@@ -71,7 +66,7 @@ def _initialize_repo(repo_name, repo_dir):
     config.set_value('core', 'sparsecheckout', True)
     config.release()
 
-    log('Repo {} initialized'.format(repo_name))
+    util.log('Repo {} initialized'.format(repo_name))
 
 
 def _add_sparse_checkout_paths(repo_dir, paths):
@@ -93,13 +88,13 @@ def _add_sparse_checkout_paths(repo_dir, paths):
     except FileNotFoundError:
         pass
 
-    log('Existing paths in sparse-checkout: {}'.format(existing_paths))
+    util.log('Existing paths in sparse-checkout: {}'.format(existing_paths))
     to_write = [path for path in paths if path not in existing_paths]
     with open(sparsecheckout_path, 'a') as info_file:
         for path in to_write:
             info_file.write('/{}\n'.format(path))
 
-    log('{} written to sparse-checkout'.format(to_write))
+    util.log('{} written to sparse-checkout'.format(to_write))
 
 
 def _make_commit_if_dirty(repo):
@@ -111,7 +106,7 @@ def _make_commit_if_dirty(repo):
         git_cli.add('-A')
         git_cli.commit('-m', 'WIP')
 
-        log('Made WIP commit')
+        util.log('Made WIP commit')
 
 
 def _pull_and_resolve_conflicts(repo):
@@ -124,4 +119,4 @@ def _pull_and_resolve_conflicts(repo):
     else:
         git_cli.pull('origin', GH_PAGES_BRANCH)
 
-    log('Pulled from {} {}'.format(repo.remotes['origin'], GH_PAGES_BRANCH))
+    util.log('Pulled from {} {}'.format(repo.remotes['origin'], GH_PAGES_BRANCH))

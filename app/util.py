@@ -9,12 +9,8 @@ def construct_path(path, format, *args):
     """Constructs a path using locally available variables."""
     return os.path.join(path.format(**format), *args)
 
-def logger(config):
-    """ Returns a logger if development mode, else a no-op. """
-    def log(message):
-        print('[Debug]: {}'.format(message))
-
-    if config['DEBUG']:
-        return log
-    else:
-        return lambda x: None
+def log(message):
+    """
+    Logs a message to the console.
+    """
+    print('[Debug]: {}'.format(message))

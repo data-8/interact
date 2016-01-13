@@ -16,6 +16,8 @@ class Config:
 
 class ProductionConfig(Config):
     """Configuration for production"""
+    # TODO(sam): Remove once things are working
+    DEBUG = True
 
     # URL for users to access
     URL = '/hub/interact/'

@@ -52,7 +52,7 @@ class HubAuth:
         """Authenticate a request.
         Returns username or flask redirect."""
 
-        if self.config['DEBUG'] or self.config['TESTING']:
+        if self.config['MOCK_AUTH']:
             return 'sample_username'
 
         # If auth cookie doesn't exist, redirect to the login page with

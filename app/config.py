@@ -5,6 +5,7 @@ class Config:
 
     # testing parameters
     DEBUG = False
+    MOCK_AUTH = False
     TESTING = False
 
     # passed to app.run as kwargs
@@ -16,8 +17,6 @@ class Config:
 
 class ProductionConfig(Config):
     """Configuration for production"""
-    # TODO(sam): Remove once things are working
-    DEBUG = True
 
     # URL for users to access
     URL = '/hub/interact/'
@@ -58,6 +57,7 @@ class DevelopmentConfig(Config):
 
     # testing parameters
     DEBUG = True
+    MOCK_AUTH = True
 
     # URL for users to access
     URL = '/'
@@ -94,6 +94,7 @@ class TestConfig(Config):
 
     # testing parameters
     TESTING = True
+    MOCK_AUTH = True
 
     # URL for users to access
     URL = '/'

@@ -32,7 +32,7 @@ class ProductionConfig(Config):
     COPY_PATH = '/home/{username}'
 
     # where users are redirected upon success
-    REDIRECT_PATH = '/user/{username}/notebooks/{destination}'
+    REDIRECT_PATH = '/user/{username}/{destination}'
 
     # allowed sources for file parameter in query
     ALLOWED_DOMAIN = 'http://data8.org'

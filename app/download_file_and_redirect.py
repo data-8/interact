@@ -1,7 +1,7 @@
 import os
 from urllib.error import HTTPError
 from urllib.request import urlopen
-from flask import Flask, redirect
+from flask import redirect
 
 from . import util
 
@@ -29,8 +29,10 @@ def download_file_and_redirect(**kwargs):
         # print(' * Wrote {}'.format(path + '/' + destination))
         util.chown(username, path, destination)
 
-        redirect_url = util.construct_path(
-            config['REDIRECT_PATH'], locals())
+        redirect_url = util.construct_path(config['REDIRECT_PATH'], {
+            'username': username,
+            'destination': 'notebooks/' + destination,
+        })
         return redirect(redirect_url)
 
     except HTTPError:

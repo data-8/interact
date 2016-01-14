@@ -1,5 +1,6 @@
 import os
 
+from flask import redirect
 import git
 
 from . import util
@@ -40,22 +41,32 @@ def pull_from_github(**kwargs):
 
     repo_dir = util.construct_path(config['COPY_PATH'], locals(), repo_name)
 
-    if not os.path.exists(repo_dir):
-        _initialize_repo(repo_name, repo_dir)
+    try:
+        if not os.path.exists(repo_dir):
+            _initialize_repo(repo_name, repo_dir)
 
-    _add_sparse_checkout_paths(repo_dir, paths)
+        _add_sparse_checkout_paths(repo_dir, paths)
 
-    repo = git.Repo(repo_dir)
-    _make_commit_if_dirty(repo)
+        repo = git.Repo(repo_dir)
+        _make_commit_if_dirty(repo)
 
-    _pull_and_resolve_conflicts(repo)
+        _pull_and_resolve_conflicts(repo)
 
-    # Set ownership to username
-    parent_dir = util.construct_path(config['COPY_PATH'], locals())
-    util.chown(username, parent_dir, repo_name)
-    util.logger.info('chown\'d {} to {}'.format(repo_name, username))
+        # Set ownership to username
+        parent_dir = util.construct_path(config['COPY_PATH'], locals())
+        util.chown(username, parent_dir, repo_name)
+        util.logger.info('chown\'d {} to {}'.format(repo_name, username))
 
-    return '{} {}'.format(repo_name, paths)
+        redirect_url = util.construct_path(config['REDIRECT_PATH'], {
+            'username': username,
+            'destination': 'tree/' + repo_name,
+        })
+        util.logger.info('Redirecting to {}'.format(redirect_url))
+        return redirect(redirect_url)
+    except git.exc.GitCommandError as git_err:
+        util.logger.error(git_err)
+        return git_err.stderr
+
 
 
 def _initialize_repo(repo_name, repo_dir):

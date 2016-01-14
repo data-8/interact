@@ -60,7 +60,7 @@ def _write_to_destination(file_contents, path, destination, config):
         return _write_to_destination(file_contents, path, destination, config)
 
     # make user directory if it doesn't exist
-    os.makedirs('/'.join(path.split('/')[:-1]), exist_ok=True)
+    os.makedirs(path, exist_ok=True)
 
     # write the file
     with open(os.path.join(path, destination), 'wb') as outfile:

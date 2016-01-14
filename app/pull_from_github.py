@@ -54,8 +54,8 @@ def pull_from_github(**kwargs):
 
         # Set ownership to username
         parent_dir = util.construct_path(config['COPY_PATH'], locals())
-        util.chown(username, parent_dir, repo_name)
-        util.logger.info('chown\'d {} to {}'.format(repo_name, username))
+        util.chown_dir(repo_dir)
+        util.logger.info('chown\'d {} to {}'.format(repo_dir, username))
 
         if config['GIT_REDIRECT_PATH']:
             redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {

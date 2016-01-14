@@ -27,7 +27,7 @@ def download_file_and_redirect(**kwargs):
         destination = _write_to_destination(
             file_contents, path, destination, config)
         # print(' * Wrote {}'.format(path + '/' + destination))
-        util.chown(username, path, destination)
+        util.chown(path, destination)
 
         redirect_url = util.construct_path(config['FILE_REDIRECT_PATH'], {
             'username': username,

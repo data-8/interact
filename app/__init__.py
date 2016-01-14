@@ -32,7 +32,7 @@ def create_app(config='production'):
 
         OR (exclusive)
 
-        ?repo=dsten_github_repo_name&path=file_or_folder_name&path=other_folder
+        ?repo=data8_github_repo_name&path=file_or_folder_name&path=other_folder
         Example: ?repo=textbook&path=notebooks&path=chapter1%2Fintroduction.md
 
         Authenticates, then downloads file / git pulls into user's file system.

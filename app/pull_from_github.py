@@ -5,7 +5,7 @@ import git
 
 from . import util
 
-DSTEN_ORG = 'https://github.com/dsten/'
+DATA8_ORG = 'https://github.com/data-8/'
 GH_PAGES_BRANCH = 'gh-pages'
 
 
@@ -79,7 +79,7 @@ def _initialize_repo(repo_name, repo_dir):
     """
     util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
     # Clone repo
-    repo = git.Repo.clone_from(DSTEN_ORG + repo_name, repo_dir)
+    repo = git.Repo.clone_from(DATA8_ORG + repo_name, repo_dir)
 
     # Use sparse checkout
     config = repo.config_writer()

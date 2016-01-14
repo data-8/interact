@@ -60,5 +60,8 @@ target/
 .idea/
 *.iml
 
+# OSX file
+.DS_Store
+
 # Ignore copied files
 app/static/*

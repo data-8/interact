@@ -74,17 +74,12 @@ def pull_from_github(**kwargs):
 
 def _initialize_repo(repo_name, repo_dir):
     """
-    Initializes repository and configures it to use sparse checkout.
+    Clones repository and configures it to use sparse checkout.
+    Extraneous folders will get removed later using git read-tree
     """
-    util.logger.info('Repo {} doesn\'t exist. Creating...'.format(repo_name))
-    # Create repo dir
-    os.mkdir(repo_dir)
-    repo = git.Repo.init(repo_dir)
-
-    # Add remote
-    remote_name = DSTEN_ORG + repo_name
-    origin = repo.create_remote('origin', remote_name)
-    assert origin.exists()
+    util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
+    # Clone repo
+    repo = git.Repo.clone_from(DSTEN_ORG + repo_name, repo_dir)
 
     # Use sparse checkout
     config = repo.config_writer()
@@ -143,9 +138,12 @@ def _pull_and_resolve_conflicts(repo):
     util.logger.info('Starting pull from {}'.format(repo.remotes['origin']))
 
     git_cli = repo.git
-    if repo.heads:
-        git_cli.read_tree('-mu', 'HEAD')
-    else:
-        git_cli.pull('origin', GH_PAGES_BRANCH)
+
+    # Fetch then merge, resolving conflicts by keeping original content
+    git_cli.fetch('origin', GH_PAGES_BRANCH)
+    git_cli.merge('-Xours', 'origin/' + GH_PAGES_BRANCH)
+
+    # Ensure only files/folders in sparse-checkout are left
+    git_cli.read_tree('-mu', 'HEAD')
 
     util.logger.info('Pulled from {}'.format(repo.remotes['origin']))

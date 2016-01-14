@@ -14,10 +14,10 @@ parser.add_argument('--test', action='store_true',
 args, config = parser.parse_args(), 'production'
 
 for conf in ['production', 'development', 'test']:
-	arg = getattr(args, conf)
-	config = conf if arg else config
+    arg = getattr(args, conf)
+    config = conf if arg else config
 
 app = create_app(config=config)
 
 if __name__ == '__main__':
-	app.run(**app.config['INIT'])
+    app.run(**app.config['INIT'])

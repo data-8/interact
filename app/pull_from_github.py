@@ -57,12 +57,15 @@ def pull_from_github(**kwargs):
         util.chown(username, parent_dir, repo_name)
         util.logger.info('chown\'d {} to {}'.format(repo_name, username))
 
-        redirect_url = util.construct_path(config['REDIRECT_PATH'], {
-            'username': username,
-            'destination': 'tree/' + repo_name,
-        })
-        util.logger.info('Redirecting to {}'.format(redirect_url))
-        return redirect(redirect_url)
+        if config['GIT_REDIRECT_PATH']:
+            redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
+                'username': username,
+                'destination': repo_name,
+            })
+            util.logger.info('Redirecting to {}'.format(redirect_url))
+            return redirect(redirect_url)
+        else:
+            return 'Pulled from repo: ' + repo_name
     except git.exc.GitCommandError as git_err:
         util.logger.error(git_err)
         return git_err.stderr

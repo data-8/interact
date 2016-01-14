@@ -1,4 +1,5 @@
 import os
+import logging
 
 def chown(username, path, destination):
     """Set owner and group of file to that of the parent directory."""
@@ -9,8 +10,8 @@ def construct_path(path, format, *args):
     """Constructs a path using locally available variables."""
     return os.path.join(path.format(**format), *args)
 
-def log(message):
-    """
-    Logs a message to the console.
-    """
-    print('[Debug]: {}'.format(message))
+# Log all messages by default
+logging.basicConfig(format='[%(asctime)s]: %(levelname)s -- %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p',
+                    level=logging.DEBUG)
+logger = logging.getLogger('app')

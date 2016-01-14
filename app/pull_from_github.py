@@ -33,6 +33,11 @@ def pull_from_github(**kwargs):
 
     assert username and repo_name and paths and config
 
+    util.logger.info('Starting pull.')
+    util.logger.info('    User: {}'.format(username))
+    util.logger.info('    Repo: {}'.format(repo_name))
+    util.logger.info('    Paths: {}'.format(paths))
+
     repo_dir = util.construct_path(config['COPY_PATH'], locals(), repo_name)
 
     if not os.path.exists(repo_dir):
@@ -45,6 +50,11 @@ def pull_from_github(**kwargs):
 
     _pull_and_resolve_conflicts(repo)
 
+    # Set ownership to username
+    parent_dir = util.construct_path(config['COPY_PATH'], locals())
+    util.chown(username, parent_dir, repo_name)
+    util.logger.info('chown\'d {} to {}'.format(repo_name, username))
+
     return '{} {}'.format(repo_name, paths)
 
 
@@ -52,6 +62,7 @@ def _initialize_repo(repo_name, repo_dir):
     """
     Initializes repository and configures it to use sparse checkout.
     """
+    util.logger.info('Repo {} doesn\'t exist. Creating...'.format(repo_name))
     # Create repo dir
     os.mkdir(repo_dir)
     repo = git.Repo.init(repo_dir)
@@ -66,7 +77,7 @@ def _initialize_repo(repo_name, repo_dir):
     config.set_value('core', 'sparsecheckout', True)
     config.release()
 
-    util.log('Repo {} initialized'.format(repo_name))
+    util.logger.info('Repo {} initialized'.format(repo_name))
 
 
 def _add_sparse_checkout_paths(repo_dir, paths):
@@ -88,13 +99,15 @@ def _add_sparse_checkout_paths(repo_dir, paths):
     except FileNotFoundError:
         pass
 
-    util.log('Existing paths in sparse-checkout: {}'.format(existing_paths))
+    util.logger.info(
+        'Existing paths in sparse-checkout: {}'.format(existing_paths))
+
     to_write = [path for path in paths if path not in existing_paths]
     with open(sparsecheckout_path, 'a') as info_file:
         for path in to_write:
             info_file.write('/{}\n'.format(path))
 
-    util.log('{} written to sparse-checkout'.format(to_write))
+    util.logger.info('{} written to sparse-checkout'.format(to_write))
 
 
 def _make_commit_if_dirty(repo):
@@ -106,17 +119,19 @@ def _make_commit_if_dirty(repo):
         git_cli.add('-A')
         git_cli.commit('-m', 'WIP')
 
-        util.log('Made WIP commit')
+        util.logger.info('Made WIP commit')
 
 
 def _pull_and_resolve_conflicts(repo):
     """
     Git pulls, resolving conflicts with -Xours
     """
+    util.logger.info('Starting pull from {}'.format(repo.remotes['origin']))
+
     git_cli = repo.git
     if repo.heads:
         git_cli.read_tree('-mu', 'HEAD')
     else:
         git_cli.pull('origin', GH_PAGES_BRANCH)
 
-    util.log('Pulled from {} {}'.format(repo.remotes['origin'], GH_PAGES_BRANCH))
+    util.logger.info('Pulled from {}'.format(repo.remotes['origin']))

@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from flask import redirect
 import git
@@ -52,11 +53,6 @@ def pull_from_github(**kwargs):
 
         _pull_and_resolve_conflicts(repo)
 
-        # Set ownership to username
-        parent_dir = util.construct_path(config['COPY_PATH'], locals())
-        util.chown_dir(repo_dir)
-        util.logger.info('chown\'d {} to {}'.format(repo_dir, username))
-
         if config['GIT_REDIRECT_PATH']:
             redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
                 'username': username,
@@ -69,8 +65,13 @@ def pull_from_github(**kwargs):
     except git.exc.GitCommandError as git_err:
         util.logger.error(git_err)
         return git_err.stderr
-
-
+    finally:
+        # Always set ownership to username in case of a git failure
+        try:
+            util.chown_dir(repo_dir, username)
+        except subprocess.CalledProcessError as cmd_err:
+            util.logger.error(cmd_err)
+            return str(cmd_err)
 
 def _initialize_repo(repo_name, repo_dir):
     """

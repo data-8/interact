@@ -10,6 +10,7 @@ def chown(path, filename):
 
 def chown_dir(directory, username):
     """Set owner and group of directory to username."""
+    shutil.chown(directory, username, username)
     for root, dirs, files in os.walk(directory):
         for child in dirs + files:
             shutil.chown(os.path.join(root, child), username, username)

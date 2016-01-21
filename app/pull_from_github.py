@@ -107,7 +107,10 @@ def _reset_deleted_files(repo):
     """
     git_cli = repo.git
     deleted_files = DELETED_FILE_REGEX.findall(git_cli.status())
-    git_cli.checkout('--', *deleted_files)
+
+    if deleted_files:
+        git_cli.checkout('--', *deleted_files)
+        util.logger.info('Resetted these files: {}'.format(deleted_files))
 
 
 def _add_sparse_checkout_paths(repo_dir, paths):

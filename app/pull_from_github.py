@@ -66,10 +66,12 @@ def pull_from_github(**kwargs):
         return git_err.stderr
     finally:
         # Always set ownership to username in case of a git failure
-        # This breaks in development because it tries to chown to
-        # sample_username.
-        # TODO(sam): Fix that.
-        util.chown_dir(repo_dir, username)
+        # In development, don't run the chown since the sample user doesn't
+        # exist on the system.
+        if config['MOCK_AUTH']:
+            util.logger.info("We're in development so we won't chown the dir.")
+        else:
+            util.chown_dir(repo_dir, username)
 
 def _initialize_repo(repo_name, repo_dir):
     """

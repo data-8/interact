@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import logging
 
@@ -9,11 +10,10 @@ def chown(path, filename):
 
 def chown_dir(directory, username):
     """Set owner and group of directory to username."""
-    command = ['chown', '-R', '{u}:{u}'.format(u=username), directory]
-    # Throws subprocess.CalledProcessError on error
-    subprocess.check_call(command, shell=True)
-
-    logger.info(' '.join(command))
+    for root, dirs, files in os.walk(directory):
+        for child in dirs + files:
+            shutil.chown(os.path.join(root, child), username, username)
+    logger.info("{} chown'd to {}".format(directory, username))
 
 def construct_path(path, format, *args):
     """Constructs a path using locally available variables."""

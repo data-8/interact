@@ -1,5 +1,4 @@
 import os
-import subprocess
 
 from flask import redirect
 import git
@@ -67,11 +66,10 @@ def pull_from_github(**kwargs):
         return git_err.stderr
     finally:
         # Always set ownership to username in case of a git failure
-        try:
-            util.chown_dir(repo_dir, username)
-        except subprocess.CalledProcessError as cmd_err:
-            util.logger.error(cmd_err)
-            return str(cmd_err)
+        # This breaks in development because it tries to chown to
+        # sample_username.
+        # TODO(sam): Fix that.
+        util.chown_dir(repo_dir, username)
 
 def _initialize_repo(repo_name, repo_dir):
     """

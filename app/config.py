@@ -40,7 +40,7 @@ class ProductionConfig(Config):
     ALLOWED_DOMAIN = 'http://data8.org'
 
     # base_url for the program
-    BASE_URL = 'https://data8.berkeley.edu'
+    BASE_URL = 'https://ds8.berkeley.edu'
 
     # alowed file extensions
     ALLOWED_FILETYPES = ['ipynb']

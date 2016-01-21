@@ -1,4 +1,5 @@
 import os
+import re
 
 from flask import redirect
 import git
@@ -16,6 +17,9 @@ def pull_from_github(**kwargs):
 
     This pull preserves the original content in case of a merge conflict by
     making a WIP commit then pulling with -Xours.
+
+    It resets deleted files back to their original state before a pull to allow
+    getting back the original file more easily.
 
     Reference:
     http://jasonkarns.com/blog/subdirectory-checkouts-with-git-sparse-checkout/
@@ -48,6 +52,7 @@ def pull_from_github(**kwargs):
         _add_sparse_checkout_paths(repo_dir, paths)
 
         repo = git.Repo(repo_dir)
+        _reset_deleted_files(repo)
         _make_commit_if_dirty(repo)
 
         _pull_and_resolve_conflicts(repo)
@@ -88,6 +93,21 @@ def _initialize_repo(repo_name, repo_dir):
     config.release()
 
     util.logger.info('Repo {} initialized'.format(repo_name))
+
+
+DELETED_FILE_REGEX = re.compile(
+    r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
+    r"(\S+)"        # and match the filename afterward.
+)
+def _reset_deleted_files(repo):
+    """
+    Runs the equivalent of git checkout -- <file> for each file that was
+    deleted. This allows us to delete a file, hit an interact link, then get a
+    clean version of the file again.
+    """
+    git_cli = repo.git
+    deleted_files = DELETED_FILE_REGEX.findall(git_cli.status())
+    git_cli.checkout('--', *deleted_files)
 
 
 def _add_sparse_checkout_paths(repo_dir, paths):

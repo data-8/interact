@@ -82,7 +82,8 @@ def _initialize_repo(repo_name, repo_dir, config=None):
     """
     util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
     # Clone repo
-    repo = git.Repo.clone_from(config['GITHUB_ORG'] + repo_name, repo_dir)
+    repo = git.Repo.clone_from(config['GITHUB_ORG'] + repo_name, repo_dir,
+                               branch=config['REPO_BRANCH'])
 
     # Use sparse checkout
     config = repo.config_writer()

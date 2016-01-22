@@ -6,9 +6,6 @@ import git
 
 from . import util
 
-DATA8_ORG = 'https://github.com/data-8/'
-GH_PAGES_BRANCH = 'gh-pages'
-
 
 def pull_from_github(**kwargs):
     """
@@ -47,7 +44,7 @@ def pull_from_github(**kwargs):
 
     try:
         if not os.path.exists(repo_dir):
-            _initialize_repo(repo_name, repo_dir)
+            _initialize_repo(repo_name, repo_dir, config=config)
 
         _add_sparse_checkout_paths(repo_dir, paths)
 
@@ -55,7 +52,7 @@ def pull_from_github(**kwargs):
         _reset_deleted_files(repo)
         _make_commit_if_dirty(repo)
 
-        _pull_and_resolve_conflicts(repo)
+        _pull_and_resolve_conflicts(repo, config=config)
 
         if config['GIT_REDIRECT_PATH']:
             redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
@@ -78,14 +75,14 @@ def pull_from_github(**kwargs):
         else:
             util.chown_dir(repo_dir, username)
 
-def _initialize_repo(repo_name, repo_dir):
+def _initialize_repo(repo_name, repo_dir, config=None):
     """
     Clones repository and configures it to use sparse checkout.
     Extraneous folders will get removed later using git read-tree
     """
     util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
     # Clone repo
-    repo = git.Repo.clone_from(DATA8_ORG + repo_name, repo_dir)
+    repo = git.Repo.clone_from(config['GITHUB_ORG'] + repo_name, repo_dir)
 
     # Use sparse checkout
     config = repo.config_writer()
@@ -155,7 +152,7 @@ def _make_commit_if_dirty(repo):
         util.logger.info('Made WIP commit')
 
 
-def _pull_and_resolve_conflicts(repo):
+def _pull_and_resolve_conflicts(repo, config=None):
     """
     Git pulls, resolving conflicts with -Xours
     """
@@ -164,8 +161,8 @@ def _pull_and_resolve_conflicts(repo):
     git_cli = repo.git
 
     # Fetch then merge, resolving conflicts by keeping original content
-    git_cli.fetch('origin', GH_PAGES_BRANCH)
-    git_cli.merge('-Xours', 'origin/' + GH_PAGES_BRANCH)
+    git_cli.fetch('origin', config['REPO_BRANCH'])
+    git_cli.merge('-Xours', 'origin/' + config['REPO_BRANCH'])
 
     # Ensure only files/folders in sparse-checkout are left
     git_cli.read_tree('-mu', 'HEAD')

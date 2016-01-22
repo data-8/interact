@@ -8,6 +8,23 @@ class Config:
     MOCK_AUTH = False
     TESTING = False
 
+    # Note: we use environ.get becauase all of these statements get run in
+    # every environment, so os.environ['FOOBAR'] will throw an error in
+    # development.
+
+    # JupyterHub API token
+    API_TOKEN = os.environ.get('JPY_API_TOKEN', default='')
+
+    # Github API token; used to pull private repos
+    GITHUB_API_TOKEN = os.environ.get('GITHUB_API_TOKEN', default='')
+
+    # The organization URL on Github. The API token is filled in so that private
+    # repos can be pulled
+    GITHUB_ORG = 'https://{}@github.com/data-8/'.format(GITHUB_API_TOKEN)
+
+    # The branch that will be pulled in
+    REPO_BRANCH = 'gh-pages'
+
     # passed to app.run as kwargs
     INIT = {
         'host': '127.0.0.1',
@@ -20,9 +37,6 @@ class ProductionConfig(Config):
 
     # URL for users to access
     URL = '/hub/interact/'
-
-    # JupyterHub API token
-    API_TOKEN = os.environ['JPY_API_TOKEN']
 
     # Cookie name?
     COOKIE = 'jupyter-hub-token'
@@ -40,7 +54,7 @@ class ProductionConfig(Config):
     ALLOWED_DOMAIN = 'http://data8.org'
 
     # base_url for the program
-    BASE_URL = 'https://ds8.berkeley.edu'
+    BASE_URL = os.environ.get('BASE_URL')
 
     # alowed file extensions
     ALLOWED_FILETYPES = ['ipynb']

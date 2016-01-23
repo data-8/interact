@@ -55,9 +55,11 @@ def pull_from_github(**kwargs):
         _pull_and_resolve_conflicts(repo, config=config)
 
         if config['GIT_REDIRECT_PATH']:
+            # Redirect to the final path given in the URL
+            destination = paths[-1]
             redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
                 'username': username,
-                'destination': repo_name,
+                'destination': destination,
             })
             util.logger.info('Redirecting to {}'.format(redirect_url))
             return redirect(redirect_url)

@@ -12,6 +12,13 @@ def pull_from_github(**kwargs):
     Initializes git repo if needed, then pulls new content from Github using
     sparse checkout.
 
+    Redirects the user to the final path provided in the URL. Eg. given a path
+    like:
+
+        repo=data8assets&path=labs/lab01&path=labs/lab01/lab01.ipynb
+
+    The user will be redirected to the lab01.ipynb notebook (and open it).
+
     This pull preserves the original content in case of a merge conflict by
     making a WIP commit then pulling with -Xours.
 
@@ -56,7 +63,7 @@ def pull_from_github(**kwargs):
 
         if config['GIT_REDIRECT_PATH']:
             # Redirect to the final path given in the URL
-            destination = paths[-1]
+            destination = os.path.join(repo_name, paths[-1])
             redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
                 'username': username,
                 'destination': destination,

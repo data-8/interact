@@ -24,12 +24,4 @@ instead of serving it.
 
 # Deploying
 
-1. Setup in `/var/www/interact`.
-2. Configurations are in `app/config.py`. Modify attributes accordingly in
-`ProductionConfig`.
-3. Run the server `python run.py --production`.
-4. Point WSGI to `/var/www/interact/index.wsgi`.
-5. Optionally use the *Apache2* configuration file.
-
-WSGI script and Apache configuration file assumes that the program is installed
-under `/var/www/interact`.
+See https://github.com/data-8/jupyterhub-deploy/tree/master/roles/interact.

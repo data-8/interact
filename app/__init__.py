@@ -51,6 +51,9 @@ def create_app(config='production'):
         if not is_authenticated:
             return redirection
 
+        if not notebook_server_exists(username):
+            return '/hub/home'
+
         if is_file_request:
             redirection = download_file_and_redirect(
                 username=username,
@@ -73,3 +76,7 @@ def create_app(config='production'):
 def authenticate():
     """Authenticates the user with the local JupyterHub installation."""
     return HubAuth().authenticate()
+
+def notebook_server_exists(user):
+    """Start the user's server if necessary."""
+    return HubAuth().notebook_server_exists(user)

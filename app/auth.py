@@ -102,3 +102,25 @@ class HubAuth:
             return redirect(self.hub_base_url + '/hub?next=' + self.remap_url)
 
         assert False, 'Something went wrong.'
+
+    def notebook_server_exists(self, user):
+        """Does the notebook server exist?"""
+        # first check if the server is running
+        response = self._hubapi_request('/hub/api/users/{}'.format(user))
+        if response.status_code == 200:
+            user_data = response.json()
+        else:
+            self.log.warn("Could not access information about user {} (response: {} {})".format(
+                user, response.status_code, response.reason))
+            return False
+
+        # start it if it's not running
+        if user_data['server'] is None and user_data['pending'] != 'spawn':
+            # start the server
+            response = self._hubapi_request('/hub/api/users/{}/server'.format(user), method='POST')
+            if response.status_code not in (201, 202):
+                self.log.warn("Could not start server for user {} (response: {} {})".format(
+                    user, response.status_code, response.reason))
+                return False
+
+        return True

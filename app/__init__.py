@@ -45,13 +45,16 @@ def create_app(config='production'):
             return "Request was malformed. It must contain either the file " \
                 "param or both the repo and path params."
 
+        hubauth = HubAuth()
+
         # authenticate() returns either a username as a string or a redirect
-        redirection = username = authenticate()
+        redirection = username = hubauth.authenticate()
         is_authenticated = isinstance(username, str)
         if not is_authenticated:
             return redirection
 
-        if not notebook_server_exists(username):
+        # Start the user's server if necessary
+        if not hubauth.notebook_server_exists(username):
             return '/hub/home'
 
         if is_file_request:
@@ -73,10 +76,3 @@ def create_app(config='production'):
     return app
 
 
-def authenticate():
-    """Authenticates the user with the local JupyterHub installation."""
-    return HubAuth().authenticate()
-
-def notebook_server_exists(user):
-    """Start the user's server if necessary."""
-    return HubAuth().notebook_server_exists(user)

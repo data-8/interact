@@ -48,7 +48,7 @@ class ProductionConfig(Config):
     FILE_REDIRECT_PATH = '/user/{username}/notebooks/{destination}'
 
     # where users are redirect upon git pull success
-    GIT_REDIRECT_PATH = '/user/{username}/tree/{destination}'
+    GIT_REDIRECT_PATH = '/user/{username}/tree/local/{destination}'
 
     # allowed sources for file parameter in query
     ALLOWED_DOMAIN = 'http://data8.org'

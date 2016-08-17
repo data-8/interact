@@ -64,4 +64,4 @@ target/
 .DS_Store
 
 # Ignore copied files
-app/static
+app/static/users

@@ -14,7 +14,7 @@ from operator import xor
 from webargs import fields
 from webargs.flaskparser import use_args
 
-from .util import generate_git_download_link
+from . import util
 from .download_file_and_redirect import download_file_and_redirect
 from .pull_from_github import pull_from_github
 
@@ -66,7 +66,7 @@ def landing(args):
         return render_template(
             'landing.html',
             authenticate_link=redirection.location,
-            download_links=generate_git_download_link(args))
+            download_links=util.generate_git_download_link(args))
 
     # Start the user's server if necessary
     if not hubauth.notebook_server_exists(username):
@@ -92,4 +92,10 @@ def landing(args):
 @current_app.route('/progress')
 def progress():
     """Page containing progress on server's running process."""
-    pass
+    return render_template('progress.html')
+
+
+@current_app.route('/done')
+def done():
+    """Page containing information about completed process."""
+    return 'done'

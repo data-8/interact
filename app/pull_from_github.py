@@ -2,6 +2,7 @@ import os
 import re
 
 from flask import redirect
+from flask import url_for
 import git
 
 from . import util
@@ -42,7 +43,7 @@ def pull_from_github(**kwargs):
 
     assert username and repo_name and paths and config
 
-    util.logger.info('Starting pull.')
+    util.emit_and_log(username, 'Starting pull.')
     util.logger.info('    User: {}'.format(username))
     util.logger.info('    Repo: {}'.format(repo_name))
     util.logger.info('    Paths: {}'.format(paths))
@@ -51,7 +52,7 @@ def pull_from_github(**kwargs):
 
     try:
         if not os.path.exists(repo_dir):
-            _initialize_repo(repo_name, repo_dir, config=config)
+            _initialize_repo(username, repo_name, repo_dir, config=config)
 
         _add_sparse_checkout_paths(repo_dir, paths)
 
@@ -59,7 +60,7 @@ def pull_from_github(**kwargs):
         _reset_deleted_files(repo)
         _make_commit_if_dirty(repo)
 
-        _pull_and_resolve_conflicts(repo, config=config)
+        _pull_and_resolve_conflicts(username, repo, config=config)
 
         if config['GIT_REDIRECT_PATH']:
             # Redirect to the final path given in the URL
@@ -68,9 +69,11 @@ def pull_from_github(**kwargs):
                 'username': username,
                 'destination': destination,
             })
-            util.logger.info('Redirecting to {}'.format(redirect_url))
+            util.emit_and_log('Redirecting to {}'.format(redirect_url))
+            util.emit_finished(username, redirect_url)
             return redirect(redirect_url)
         else:
+            util.emit_finished(username, url_for('done'))
             return 'Pulled from repo: ' + repo_name
     except git.exc.GitCommandError as git_err:
         util.logger.error(git_err)
@@ -85,12 +88,14 @@ def pull_from_github(**kwargs):
             util.chown_dir(repo_dir, username)
 
 
-def _initialize_repo(repo_name, repo_dir, config=None):
+def _initialize_repo(username, repo_name, repo_dir, config=None):
     """
     Clones repository and configures it to use sparse checkout.
     Extraneous folders will get removed later using git read-tree
     """
-    util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
+    util.emit_and_log(username,
+                      'Repo {} doesn\'t exist. Cloning...'.format(
+        repo_name))
     # Clone repo
     repo = git.Repo.clone_from(config['GITHUB_ORG'] + repo_name, repo_dir,
                                branch=config['REPO_BRANCH'])
@@ -99,7 +104,6 @@ def _initialize_repo(repo_name, repo_dir, config=None):
     config = repo.config_writer()
     config.set_value('core', 'sparsecheckout', True)
     config.release()
-
     util.logger.info('Repo {} initialized'.format(repo_name))
 
 
@@ -165,11 +169,12 @@ def _make_commit_if_dirty(repo):
         util.logger.info('Made WIP commit')
 
 
-def _pull_and_resolve_conflicts(repo, config=None):
+def _pull_and_resolve_conflicts(username, repo, config=None):
     """
     Git pulls, resolving conflicts with -Xours
     """
-    util.logger.info('Starting pull from {}'.format(repo.remotes['origin']))
+    util.emit_and_log(username,
+                      'Starting pull from {}'.format(repo.remotes['origin']))
 
     git_cli = repo.git
 

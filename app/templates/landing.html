@@ -1,27 +1,22 @@
-<html>
-    <head>
-        <title>Data 8 Interact Server</title>
-        <link href="/static/style.css" rel="stylesheet" />
-    </head>
-    <body>
-        <h1>Data8 Interact Server</h1>
-        <section class="options">
-            <div class="col-md-6">
-                <h2>Self-Study</h2>
-                <p>Un-enrolled students should click below to download the
-                    contents of this resource directly.</p>
-                {% for download_link in download_links %}
-                <a class="button" href="{{ download_link }}">Download {{
-                    download_link.split('/')[-1] }}</a>
-                {% endfor %}
-            </div>
-            <div class="col-md-6">
-                <h2>Student</h2>
-                <p>Enrolled students should click below to authenticate and
-                    sync the repository with your JupyterHub account.</p>
-                <a class="button" href="{{ authenticate_link }}">Authenticate
-                </a>
-            </div>
-        </section>
-    </body>
-</html>
+{% extend "base.html" %}
+{% block body %}
+<h1>Data8 Interact Server</h1>
+<section class="options">
+    <div class="col-md-6">
+        <h2>Self-Study</h2>
+        <p>Un-enrolled students should click below to download the
+            contents of this resource directly.</p>
+        {% for download_link in download_links %}
+        <a class="button" href="{{ download_link }}">Download {{
+            download_link.split('/')[-1] }}</a>
+        {% endfor %}
+    </div>
+    <div class="col-md-6">
+        <h2>Student</h2>
+        <p>Enrolled students should click below to authenticate and
+            sync the repository with your JupyterHub account.</p>
+        <a class="button" href="{{ authenticate_link }}">Authenticate
+        </a>
+    </div>
+</section>
+{% endblock %}

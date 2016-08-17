@@ -1,5 +1,6 @@
 """Initializer for app"""
 from app import create_app
+from app import socketio
 
 import argparse
 
@@ -20,4 +21,4 @@ for conf in ['production', 'development', 'test']:
 app = create_app(config=config)
 
 if __name__ == '__main__':
-    app.run(**app.config['INIT'])
+    socketio.run(app, **app.config['INIT'])

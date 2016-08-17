@@ -77,7 +77,7 @@ class DevelopmentConfig(Config):
 
     # testing parameters
     DEBUG = True
-    MOCK_AUTH = False
+    MOCK_AUTH = True
     MOCK_SERVER = True
 
     # URL for users to access

@@ -1,5 +1,11 @@
 """Application body"""
+
 from flask import Flask
+from flask_socketio import SocketIO
+
+import eventlet
+
+socketio = SocketIO(async_mode='eventlet')
 
 
 def create_app(config='production'):
@@ -11,6 +17,10 @@ def create_app(config='production'):
 
     with app.app_context():
         from . import views
+
+    # setup async sockets
+    eventlet.monkey_patch()
+    socketio.init_app(app)
 
     return app
 

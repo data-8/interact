@@ -8,10 +8,13 @@
 
 from app.auth import HubAuth
 from flask import current_app
+from flask import redirect
+from flask import render_template
 from operator import xor
 from webargs import fields
 from webargs.flaskparser import use_args
 
+from .util import generate_git_download_link
 from .download_file_and_redirect import download_file_and_redirect
 from .pull_from_github import pull_from_github
 
@@ -60,11 +63,14 @@ def landing(args):
     redirection = username = hubauth.authenticate()
     is_authenticated = isinstance(username, str)
     if not is_authenticated:
-        return redirection
+        return render_template(
+            'landing.html',
+            authenticate_link=redirection.location,
+            download_links=generate_git_download_link(args))
 
     # Start the user's server if necessary
     if not hubauth.notebook_server_exists(username):
-        return '/hub/home'
+        return redirect('/hub/home')
 
     if is_file_request:
         redirection = download_file_and_redirect(

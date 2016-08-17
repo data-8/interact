@@ -1,6 +1,5 @@
 """Application body"""
 from flask import Flask
-from . import views
 
 
 def create_app(config='production'):
@@ -9,6 +8,9 @@ def create_app(config='production'):
 
     print(' * Running in {} mode'.format(config))
     app.config.from_object('app.config.%sConfig' % config.capitalize())
+
+    with app.app_context():
+        from . import views
 
     return app
 

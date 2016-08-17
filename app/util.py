@@ -2,6 +2,16 @@ import os
 import shutil
 import logging
 
+"""
+Format for downloading zip files of Git folders
+
+:param repo: the repository name, from the Data8 organization on Github
+:param path: path to the desired file or folder
+"""
+GIT_DOWNLOAD_LINK_FORMAT = 'https://minhaskamal.github.io/DownGit/#/home?url' \
+                           '=http://github.com/data-8/{repo}/tree/gh-pages/{' \
+                           'path}'
+
 
 def chown(path, filename):
     """Set owner and group of file to that of the parent directory."""
@@ -27,3 +37,14 @@ logging.basicConfig(format='[%(asctime)s]: %(levelname)s -- %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p',
                     level=logging.DEBUG)
 logger = logging.getLogger('app')
+
+
+def generate_git_download_link(args):
+    """Generates a download link for files hosted on Git.
+
+    :param args: dictionary of query string "arguments"
+    :return: URIs for the specified git resources
+    """
+    return [GIT_DOWNLOAD_LINK_FORMAT.format(
+        repo=args['repo'],
+        path=path) for path in args['path']]

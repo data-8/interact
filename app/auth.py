@@ -114,7 +114,8 @@ class HubAuth:
 
     def notebook_server_exists(self, user):
         """Does the notebook server exist?"""
-        if current_app.config['DEBUG']:
+
+        if current_app.config['MOCK_SERVER']:
             return True
 
         # first check if the server is running

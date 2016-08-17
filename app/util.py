@@ -2,6 +2,8 @@ import os
 import shutil
 import logging
 
+from flask_socketio import emit
+
 """
 Format for downloading zip files of Git folders
 
@@ -48,3 +50,16 @@ def generate_git_download_link(args):
     return [GIT_DOWNLOAD_LINK_FORMAT.format(
         repo=args['repo'],
         path=path) for path in args['path']]
+
+
+def emit_status(namespace, status):
+    """Emit statuses for client-side progress displays.
+
+    :param namespace: namespace to broadcast status to
+    :param status: the status to send
+    """
+    emit(
+        'status update',
+        {'status': status},
+        broadcast=True,
+        namespace=namespace)

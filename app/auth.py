@@ -7,9 +7,13 @@ https://github.com/jupyter/nbgrader/blob/master/nbgrader/auth/hubauth.py
 """
 import json
 import logging
-import os
 import requests
-from flask import request, redirect, abort, current_app
+
+from flask import abort
+from flask import current_app
+from flask import request
+from flask import redirect
+from requests.exceptions import ReadTimeout
 
 
 class HubAuth:
@@ -44,9 +48,14 @@ class HubAuth:
         if isinstance(data, (dict,)):
             data = json.dumps(data)
 
-        return requests.request(method, base_url + relative_path, headers={
-            'Authorization': 'token %s' % token
-        }, data=data)
+        return requests.request(
+            method,
+            base_url + relative_path,
+            headers={
+                'Authorization': 'token %s' % token
+            },
+            data=data,
+            timeout=current_app.config['AUTH_TIMEOUT_S'])
 
     def authenticate(self):
         """Authenticate a request.
@@ -105,13 +114,24 @@ class HubAuth:
 
     def notebook_server_exists(self, user):
         """Does the notebook server exist?"""
+        if current_app.config['DEBUG']:
+            return True
+
         # first check if the server is running
-        response = self._hubapi_request('/hub/api/users/{}'.format(user))
+        try:
+            response = self._hubapi_request('/hub/api/users/{}'.format(user))
+        except ReadTimeout:
+            self.log.warn(
+                "Could not access information about user {} (no response)"
+                    .format(user))
+            return False
+
         if response.status_code == 200:
             user_data = response.json()
         else:
-            self.log.warn("Could not access information about user {} (response: {} {})".format(
-                user, response.status_code, response.reason))
+            self.log.warn(
+                "Could not access information about user {} (response: {} {})"
+                    .format(user, response.status_code, response.reason))
             return False
 
         # start it if it's not running

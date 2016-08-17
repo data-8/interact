@@ -31,6 +31,10 @@ class Config:
         'port': 8002
     }
 
+    # Timeout for authentication token retrieval. Used when checking if notebook
+    # exists under user's account
+    AUTH_TIMEOUT_S = 10
+
 
 class ProductionConfig(Config):
     """Configuration for production"""
@@ -101,6 +105,10 @@ class DevelopmentConfig(Config):
 
     # allowed file extensions
     ALLOWED_FILETYPES = ['ipynb']
+
+    # Timeout for authentication token retrieval. Used when checking if notebook
+    # exists under user's account
+    AUTH_TIMEOUT_S = 0.01
 
 
 class TestConfig(Config):

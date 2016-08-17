@@ -84,6 +84,7 @@ def pull_from_github(**kwargs):
         else:
             util.chown_dir(repo_dir, username)
 
+
 def _initialize_repo(repo_name, repo_dir, config=None):
     """
     Clones repository and configures it to use sparse checkout.
@@ -106,6 +107,8 @@ DELETED_FILE_REGEX = re.compile(
     r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
     r"(\S+)"        # and match the filename afterward.
 )
+
+
 def _reset_deleted_files(repo):
     """
     Runs the equivalent of git checkout -- <file> for each file that was

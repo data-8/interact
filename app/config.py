@@ -1,5 +1,6 @@
 import os
 
+
 class Config:
     """General configurations"""
 

@@ -1,12 +1,13 @@
 import os
 import shutil
-import subprocess
 import logging
+
 
 def chown(path, filename):
     """Set owner and group of file to that of the parent directory."""
     s = os.stat(path)
     os.chown(os.path.join(path, filename), s.st_uid, s.st_gid)
+
 
 def chown_dir(directory, username):
     """Set owner and group of directory to username."""
@@ -15,6 +16,7 @@ def chown_dir(directory, username):
         for child in dirs + files:
             shutil.chown(os.path.join(root, child), username, username)
     logger.info("{} chown'd to {}".format(directory, username))
+
 
 def construct_path(path, format, *args):
     """Constructs a path using locally available variables."""

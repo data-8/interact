@@ -112,7 +112,7 @@ def execute_request(app, context, hubauth, username, is_file_request, args):
             )
 
         app.tracker.pop(username)
-        util.emit_finished('/' + username, url_for('done'))
+        util.emit_finished('/' + username, redirection)
         return redirection
 
 

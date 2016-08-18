@@ -23,6 +23,12 @@ function openStatusSocket(username, callback) {
         window.location.href = msg.url;
     });
 
+    socket.on('log update', function(msg) {
+        if ($('.log').is(':visible')) {
+            $('.log').html(msg.log);
+        }
+    });
+
     // Event handler for new connections
     socket.on('connect', function() {
         callback();
@@ -36,3 +42,18 @@ function openStatusSocket(username, callback) {
         $('.time').html(msg.estimate + ' seconds');
     });
 }
+
+$(document).ready(function() {
+    $('.log').hide();
+
+    $('.console_log').on('click', function() {
+        if ($('.log').is(':visible')) {
+            $('.log').hide();
+            $('.console_log').html('Show Console Log');
+        } else {
+            $('.log').show();
+            $('.console_log').html('Hide Console Log');
+        }
+        return false;
+    })
+});

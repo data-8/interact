@@ -83,6 +83,19 @@ def emit_status(namespace, status):
         namespace=namespace)
 
 
+def emit_log(namespace, log):
+    """Emit logs for client-side progress displays.
+
+    :param namespace: namespace to broadcast logs to
+    :param log: the log contents
+    """
+    emit(
+        'log update',
+        {'log': log},
+        broadcast=True,
+        namespace=namespace)
+
+
 def emit_and_log(namespace, status):
     """Emit status and log info.
 

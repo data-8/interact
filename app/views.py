@@ -10,7 +10,6 @@ from app.auth import HubAuth
 from flask import current_app
 from flask import redirect
 from flask import render_template
-from flask import url_for
 from operator import xor
 from threading import Thread
 from webargs import fields

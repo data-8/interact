@@ -122,8 +122,16 @@ def _reset_deleted_files(repo):
     deleted_files = DELETED_FILE_REGEX.findall(git_cli.status())
 
     if deleted_files:
-        git_cli.checkout('--', *deleted_files)
+        git_cli.checkout('--', *[_clean_path(filename) for
+                                 filename in deleted_files])
         util.logger.info('Resetted these files: {}'.format(deleted_files))
+
+
+def _clean_path(path):
+    """Clean filename so that it is command line friendly:
+    - introduces back slashes for all spaces
+    """
+    return path.replace(' ', '\ ')
 
 
 def _add_sparse_checkout_paths(repo_dir, paths):
@@ -152,7 +160,7 @@ def _add_sparse_checkout_paths(repo_dir, paths):
     to_write = [path for path in paths if path not in existing_paths]
     with open(sparsecheckout_path, 'a') as info_file:
         for path in to_write:
-            info_file.write('/{}\n'.format(path))
+            info_file.write('/{}\n'.format(_clean_path(path)))
 
     util.logger.info('{} written to sparse-checkout'.format(to_write))
 

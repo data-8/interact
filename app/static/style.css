@@ -67,3 +67,8 @@ p.reversed {
 p.reversed span {
     color:#333;
 }
+
+.fa-refresh {
+    font-size: 3em;
+    margin-bottom:0.5em;
+}

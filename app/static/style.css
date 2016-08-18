@@ -9,7 +9,7 @@ h1 {
     font-size:2em;
     text-align:center;
     font-weight:700;
-    padding:2em;
+    padding:2em 0 1em 0;
 }
 
 h2 {
@@ -51,6 +51,19 @@ h2 {
         text-decoration:none;
     }
 
+p {
+    width:100%;
+    text-align:center;
+}
+
 p span {
     color:#999;
+}
+
+p.reversed {
+    color:#999;
+}
+
+p.reversed span {
+    color:#333;
 }

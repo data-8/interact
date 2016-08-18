@@ -10,6 +10,8 @@ from app.auth import HubAuth
 from flask import current_app
 from flask import redirect
 from flask import render_template
+from flask import request
+from flask import url_for
 from operator import xor
 from threading import Thread
 from webargs import fields
@@ -74,12 +76,16 @@ def landing(args):
             download_links=util.generate_git_download_link(args),
             query='&'.join(values))
 
+    # Start the user's server if necessary
+    if not hubauth.notebook_server_exists(username):
+        return redirect('/hub/home')
+
     if not current_app.tracker[username]:
         thread = Thread(
             target=execute_request,
             args=(current_app,
                   current_app.app_context(),
-                  hubauth,
+                  request.url,
                   username,
                   is_file_request,
                   args),
@@ -94,7 +100,7 @@ def landing(args):
         reusing_thread=thread is None)
 
 
-def execute_request(app, context, hubauth, username, is_file_request, args):
+def execute_request(app, context, url, username, is_file_request, args):
     """Execute the request -- either a file load or a git pull.
 
     This process is ideally run on a separate thread, as all methods in here
@@ -102,29 +108,29 @@ def execute_request(app, context, hubauth, username, is_file_request, args):
     are uniquely identified by the user's `username`.
     """
     with context:
+        try:
+            if is_file_request:
+                redirection = download_file_and_redirect(
+                    username=username,
+                    file_url=args['file'],
+                    config=current_app.config,
+                )
+            else:
+                redirection = pull_from_github(
+                    username=username,
+                    repo_name=args['repo'],
+                    paths=args['path'],
+                    config=current_app.config,
+                )
 
-        # Start the user's server if necessary
-        if not hubauth.notebook_server_exists(username):
-            return redirect('/hub/home')
-
-        if is_file_request:
-            redirection = download_file_and_redirect(
-                username=username,
-                file_url=args['file'],
-                config=current_app.config,
-            )
-        else:
-            redirection = pull_from_github(
-                username=username,
-                repo_name=args['repo'],
-                paths=args['path'],
-                config=current_app.config,
-            )
-
-        app.tracker.pop(username)
-        util.emit_finished('/' + username, redirection)
-        util.emit_estimate_update(current_app.tracker)
-        return redirection
+            util.emit_redirect('/' + username, redirection)
+            app.tracker.pop(username)
+            util.emit_estimate_update(current_app.tracker)
+            return redirection
+        except BaseException as e:
+            app.tracker[username].url = url
+            app.tracker[username].error = e
+            util.emit_redirect(username, url_for('error', username=username))
 
 
 @current_app.route('/start/<string:username>')
@@ -139,6 +145,17 @@ def start(username):
     if not current_app.config['SUPPRESS_START']:
         current_app.tracker[username].start()
     return 'Done'
+
+
+@current_app.route('/error/<string:username>')
+def error(username):
+    """Displays error information"""
+    rv = render_template(
+        'error.html',
+        link_retry=current_app.tracker[username].url,
+        log=current_app.tracker[username].error)
+    current_app.tracker.pop(username)
+    return rv
 
 
 @current_app.route('/done')

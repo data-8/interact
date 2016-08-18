@@ -106,14 +106,15 @@ def emit_and_log(namespace, status):
     emit_status(namespace, status)
 
 
-def emit_finished(namespace, redirect):
+def emit_redirect(namespace, redirect):
     """Emit the final status update, indicating that the process has finished.
 
     :param namespace: namespace to broadcast status to
     :param redirect: the url to redirect the user to
     """
+    assert isinstance(redirect, str)
     emit(
-        'process complete',
+        'process redirect',
         {'url': redirect},
         broadcast=True,
         namespace=namespace)

@@ -18,7 +18,8 @@ function openStatusSocket(username, callback) {
         $('.status').html(msg.status);
     });
 
-    socket.on('process complete', function(msg) {
+    socket.on('process redirect', function(msg) {
+        console.log(msg);
         $('.status').html('Redirecting you to ' + msg.url);
         window.location.href = msg.url;
     });

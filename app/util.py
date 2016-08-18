@@ -58,6 +58,9 @@ def emit_status(namespace, status):
     :param namespace: namespace to broadcast status to
     :param status: the status to send
     """
+    logger.info('Emit "{status}" to "{namespace}"'.format(
+        status=status,
+        namespace=namespace))
     emit(
         'status update',
         {'status': status},

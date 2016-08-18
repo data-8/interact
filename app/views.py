@@ -70,18 +70,21 @@ def landing(args):
             authenticate_link=redirection.location,
             download_links=util.generate_git_download_link(args))
 
-    thread = Thread(
-        target=execute_request,
-        args=(current_app.app_context(),
-              hubauth,
-              username,
-              is_file_request,
-              args))
-    thread.start()
-    return redirect(url_for('progress', username=username))
+    if not current_app.tracker[username]:
+        thread = Thread(
+            target=execute_request,
+            args=(current_app,
+                  current_app.app_context(),
+                  hubauth,
+                  username,
+                  is_file_request,
+                  args),
+        )
+        current_app.tracker[username] = thread
+    return render_template('progress.html', username=username)
 
 
-def execute_request(context, hubauth, username, is_file_request, args):
+def execute_request(app, context, hubauth, username, is_file_request, args):
     """Execute the request -- either a file load or a git pull.
 
     This process is ideally run on a separate thread, as all methods in here
@@ -108,13 +111,22 @@ def execute_request(context, hubauth, username, is_file_request, args):
                 config=current_app.config,
             )
 
+        app.tracker.pop(username)
+        util.emit_finished('/' + username, url_for('done'))
         return redirection
 
 
-@current_app.route('/progress/<string:username>')
-def progress(username):
-    """Page containing progress on server's running process."""
-    return render_template('progress.html')
+@current_app.route('/start/<string:username>')
+def start(username):
+    """Hack - GIL prevents Python from multi-threading.
+
+    Instead, the landing view above returns the loading page immediately. The
+    client then triggers this endpoint, which starts the thread"""
+    if current_app.tracker[username] is None \
+            or current_app.tracker[username].isAlive():
+        return 'Process in progress.'
+    current_app.tracker[username].start()
+    return 'Done'
 
 
 @current_app.route('/done')

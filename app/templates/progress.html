@@ -3,3 +3,13 @@
 <h1>Data8 Interact Server</h1>
 <p class="status">Working...</p>
 {% endblock %}
+
+{% block postbody %}
+<script>
+    $(document).ready(function() {
+        openStatusSocket('{{ username }}', function() {
+            $.get('/start/{{ username }}');
+        });
+    });
+</script>
+{% endblock %}

@@ -43,7 +43,7 @@ def pull_from_github(**kwargs):
 
     assert username and repo_name and paths and config
 
-    util.emit_and_log(username, 'Starting pull.')
+    util.emit_and_log('/' + username, 'Starting pull.')
     util.logger.info('    User: {}'.format(username))
     util.logger.info('    Repo: {}'.format(repo_name))
     util.logger.info('    Paths: {}'.format(paths))
@@ -69,7 +69,8 @@ def pull_from_github(**kwargs):
                 'username': username,
                 'destination': destination,
             })
-            util.emit_and_log('Redirecting to {}'.format(redirect_url))
+            util.emit_and_log('/' + username,
+                              'Redirecting to {}'.format(redirect_url))
             return redirect(redirect_url)
         else:
             return url_for('done', repo=repo_name)
@@ -91,7 +92,7 @@ def _initialize_repo(username, repo_name, repo_dir, config=None):
     Clones repository and configures it to use sparse checkout.
     Extraneous folders will get removed later using git read-tree
     """
-    util.emit_and_log(username,
+    util.emit_and_log('/' + username,
                       'Repo {} doesn\'t exist. Cloning...'.format(
         repo_name))
     # Clone repo
@@ -102,7 +103,7 @@ def _initialize_repo(username, repo_name, repo_dir, config=None):
     config = repo.config_writer()
     config.set_value('core', 'sparsecheckout', True)
     config.release()
-    util.logger.info('Repo {} initialized'.format(repo_name))
+    util.emit_and_log('/' + username, 'Repo {} initialized'.format(repo_name))
 
 
 DELETED_FILE_REGEX = re.compile(
@@ -171,7 +172,7 @@ def _pull_and_resolve_conflicts(username, repo, config=None):
     """
     Git pulls, resolving conflicts with -Xours
     """
-    util.emit_and_log(username,
+    util.emit_and_log('/' + username,
                       'Starting pull from {}'.format(repo.remotes['origin']))
 
     git_cli = repo.git
@@ -183,4 +184,5 @@ def _pull_and_resolve_conflicts(username, repo, config=None):
     # Ensure only files/folders in sparse-checkout are left
     git_cli.read_tree('-mu', 'HEAD')
 
-    util.logger.info('Pulled from {}'.format(repo.remotes['origin']))
+    util.emit_and_log('/' + username,
+                      'Pulled from {}'.format(repo.remotes['origin']))

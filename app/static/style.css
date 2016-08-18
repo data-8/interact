@@ -87,3 +87,14 @@ p.reversed span {
     padding:1em 0;
     color:333;
 }
+
+.server-input {
+    margin:3em 0 5em 0;
+}
+
+.server-field {
+    text-align:center;
+    width:100%;
+    font-size:1.5em;
+    padding:0.5em 1em;
+}

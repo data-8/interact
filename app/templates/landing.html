@@ -22,5 +22,16 @@
         <a class="button" href="{{ authenticate_link }}">Authenticate
         </a>
     </div>
+    <div class="server-input col-md-12">
+        <p>Or, use a different DS8 Interact server.</p>
+        <form>
+            <input class="server-field" placeholder="ds8.berkeley.edu">
+        </form>
+        <p class="reversed">http://<span class="server-display">ds8.berkeley.edu</span>/?{{
+            query
+            }}</p>
+        <p><a href="#" class="button server-button">Go to
+            <span class="server-display">Server</span></a></p>
+    </div>
 </section>
 {% endblock %}

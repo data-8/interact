@@ -55,5 +55,18 @@ $(document).ready(function() {
             $('.console_log').html('Hide Console Log');
         }
         return false;
-    })
+    });
+
+    $('.server-field').on('input', function() {
+        value = $(this).val();
+        $('.server-display').each(function() {
+            if (value == '') {
+                $(this).html('ds8.berkeley.edu');
+            } else {
+                $(this).html(value);
+            }
+        });
+        $('.server-button').attr('href', 'http://' + value +
+            $('.server-input .reversed').contents()[2].textContent);
+    });
 });

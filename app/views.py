@@ -63,10 +63,16 @@ def landing(args):
     redirection = username = hubauth.authenticate()
     is_authenticated = isinstance(username, str)
     if not is_authenticated:
+        values = []
+        for k, v in args.items():
+            if not isinstance(v, str):
+                v = '&path='.join(v)
+            values.append('%s=%s' % (k, v));
         return render_template(
             'landing.html',
             authenticate_link=redirection.location,
-            download_links=util.generate_git_download_link(args))
+            download_links=util.generate_git_download_link(args),
+            query='&'.join(values))
 
     if not current_app.tracker[username]:
         thread = Thread(

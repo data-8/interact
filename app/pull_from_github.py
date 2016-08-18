@@ -50,9 +50,16 @@ def pull_from_github(**kwargs):
 
     repo_dir = util.construct_path(config['COPY_PATH'], locals(), repo_name)
 
+    progress = Progress(username)
+
     try:
         if not os.path.exists(repo_dir):
-            _initialize_repo(username, repo_name, repo_dir, config=config)
+            _initialize_repo(
+                username,
+                repo_name,
+                repo_dir,
+                config=config,
+                progress=progress)
 
         _add_sparse_checkout_paths(repo_dir, paths)
 
@@ -60,7 +67,9 @@ def pull_from_github(**kwargs):
         _reset_deleted_files(repo)
         _make_commit_if_dirty(repo)
 
-        _pull_and_resolve_conflicts(username, repo, config=config)
+        _pull_and_resolve_conflicts(username, repo,
+                                    config=config,
+                                    progress=progress)
 
         if config['GIT_REDIRECT_PATH']:
             # Redirect to the final path given in the URL
@@ -87,17 +96,19 @@ def pull_from_github(**kwargs):
             util.chown_dir(repo_dir, username)
 
 
-def _initialize_repo(username, repo_name, repo_dir, config=None):
+def _initialize_repo(username, repo_name, repo_dir, config=None, progress=None):
     """
     Clones repository and configures it to use sparse checkout.
     Extraneous folders will get removed later using git read-tree
     """
     util.emit_and_log('/' + username,
-                      'Repo {} doesn\'t exist. Cloning...'.format(
-        repo_name))
+                      'Repo {} doesn\'t exist. Cloning...'.format(repo_name))
     # Clone repo
-    repo = git.Repo.clone_from(config['GITHUB_ORG'] + repo_name, repo_dir,
-                               branch=config['REPO_BRANCH'])
+    repo = git.Repo.clone_from(
+        config['GITHUB_ORG'] + repo_name,
+        repo_dir,
+        progress,
+        branch=config['REPO_BRANCH'])
 
     # Use sparse checkout
     config = repo.config_writer()
@@ -177,7 +188,7 @@ def _make_commit_if_dirty(repo):
         util.logger.info('Made WIP commit')
 
 
-def _pull_and_resolve_conflicts(username, repo, config=None):
+def _pull_and_resolve_conflicts(username, repo, config=None, progress=None):
     """
     Git pulls, resolving conflicts with -Xours
     """
@@ -195,3 +206,21 @@ def _pull_and_resolve_conflicts(username, repo, config=None):
 
     util.emit_and_log('/' + username,
                       'Pulled from {}'.format(repo.remotes['origin']))
+
+
+class Progress(git.RemoteProgress):
+
+    def __init__(self, username):
+        git.RemoteProgress.__init__(self)
+        self.username = username
+        self.lines = []
+
+    def line_dropped(self, line):
+        self.lines.append(line)
+        print(line)
+        util.emit_log('/' + self.username, '\n'.join(self.lines))
+
+    def update(self, *args):
+        self.lines.append(self._cur_line)
+        print(self._cur_line)
+        util.emit_log('/' + self.username, '\n'.join(self.lines))

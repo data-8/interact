@@ -24,9 +24,8 @@ function openStatusSocket(username, callback) {
     });
 
     socket.on('log update', function(msg) {
-        if ($('.log').is(':visible')) {
-            $('.log').html(msg.log);
-        }
+        console.log('received update');
+        $('.log').html(msg.log);
     });
 
     // Event handler for new connections
@@ -44,14 +43,14 @@ function openStatusSocket(username, callback) {
 }
 
 $(document).ready(function() {
-    $('.log').hide();
+    $('.log-container').hide();
 
     $('.console_log').on('click', function() {
-        if ($('.log').is(':visible')) {
-            $('.log').hide();
+        if ($('.log-container').is(':visible')) {
+            $('.log-container').hide();
             $('.console_log').html('Show Console Log');
         } else {
-            $('.log').show();
+            $('.log-container').show();
             $('.console_log').html('Hide Console Log');
         }
         return false;

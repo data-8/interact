@@ -82,7 +82,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     MOCK_AUTH = True
     MOCK_SERVER = True
-    SUPPRESS_START = True
+    SUPPRESS_START = False
 
     # URL for users to access
     URL = '/'

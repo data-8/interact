@@ -81,7 +81,12 @@ def landing(args):
         )
         current_app.tracker[username] = thread
         util.emit_estimate_update(current_app.tracker)
-    return render_template('progress.html', username=username)
+    else:
+        thread = None
+    return render_template(
+        'progress.html',
+        username=username,
+        reusing_thread=thread is None)
 
 
 def execute_request(app, context, hubauth, username, is_file_request, args):

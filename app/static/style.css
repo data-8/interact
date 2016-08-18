@@ -68,11 +68,22 @@ p.reversed span {
     color:#333;
 }
 
-.fa-refresh {
+.fa-refresh,.done-icon {
     font-size: 3em;
-    margin-bottom:0.5em;
+    margin: 2em 0 1em 0;
 }
 
-.done-icon {
-    font-size:3em;
+.progress-content h1,.done-content h1 {
+    padding:0;
+}
+
+.progress-content h1 + p,.done-content h1 + p {
+    margin:2em 0;
+}
+
+.banner {
+    width:100%;
+    background-color:#eee;
+    padding:1em 0;
+    color:333;
 }

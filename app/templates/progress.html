@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 {% block body %}
-<h1>Data8 Interact Server</h1>
-<p><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></p>
-<p class="reversed">Est. time left: <span class="time">30 seconds</span> //
-Status:
-    <span class="status">Working...</span></p>
-<p><a href="#" class="button console_log">Show Console Log</a></p>
-<p class="log"><span>There are no logs to show.</span></p>
+<main class="progress-content">
+{% if reusing_thread %}
+<p class="banner">You already started a thread! It's shown below.</p>
+{% endif %}
+    <p><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></p>
+    <h1>Data8 Interact Server</h1>
+    <p class="reversed">Est. time left: <span class="time">30 seconds</span>
+        &middot;
+    Status:
+        <span class="status">Working...</span></p>
+    <p><a href="#" class="button console_log">Show Console Log</a></p>
+    <p class="log"><span>There are no logs to show.</span></p>
+</main>
 {% endblock %}
 
 {% block postbody %}

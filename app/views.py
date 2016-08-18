@@ -55,8 +55,7 @@ def landing(args):
     is_git_request = ('repo' in args and 'path' in args)
     valid_request = xor(is_file_request, is_git_request)
     if not valid_request:
-        return "Request was malformed. It must contain either the file " \
-            "param or both the repo and path params."
+        return render_template('404.html')
 
     hubauth = HubAuth()
 

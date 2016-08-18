@@ -7,13 +7,3 @@
     <p><a href="http://data8.org" class="button">back to Data8</a></p>
 </main>
 {% endblock %}
-
-{% block postbody %}
-<script>
-    $(document).ready(function() {
-        openStatusSocket('{{ username }}', function() {
-            $.get('/start/{{ username }}');
-        });
-    });
-</script>
-{% endblock %}

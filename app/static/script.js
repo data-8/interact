@@ -27,4 +27,12 @@ function openStatusSocket(username, callback) {
     socket.on('connect', function() {
         callback();
     });
+
+    // Global socket
+    var global = io.connect('http://' + document.domain + ':' + location.port
+     + '/global');
+
+    global.on('estimate update', function(msg) {
+        $('.time').html(msg.estimate + ' seconds');
+    });
 }

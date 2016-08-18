@@ -52,6 +52,21 @@ def generate_git_download_link(args):
         path=path) for path in args['path']]
 
 
+def emit_estimate_update(tracker):
+    """Emit time estimates for each process. Extremely rough.
+
+    This should be a function of the number of processes currently running.
+    Broadcasts to all listeners.
+
+    :param tracker: the status to send
+    """
+    emit(
+        'estimate update',
+        {'estimate': 30 * len(tracker)},
+        broadcast=True,
+        namespace='/global')
+
+
 def emit_status(namespace, status):
     """Emit statuses for client-side progress displays.
 

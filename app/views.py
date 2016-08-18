@@ -10,7 +10,9 @@ from app.auth import HubAuth
 from flask import current_app
 from flask import redirect
 from flask import render_template
+from flask import url_for
 from operator import xor
+from threading import Thread
 from webargs import fields
 from webargs.flaskparser import use_args
 
@@ -68,29 +70,49 @@ def landing(args):
             authenticate_link=redirection.location,
             download_links=util.generate_git_download_link(args))
 
-    # Start the user's server if necessary
-    if not hubauth.notebook_server_exists(username):
-        return redirect('/hub/home')
-
-    if is_file_request:
-        redirection = download_file_and_redirect(
-            username=username,
-            file_url=args['file'],
-            config=current_app.config,
-        )
-    elif is_git_request:
-        redirection = pull_from_github(
-            username=username,
-            repo_name=args['repo'],
-            paths=args['path'],
-            config=current_app.config,
-        )
-
-    return redirection
+    thread = Thread(
+        target=execute_request,
+        args=(current_app.app_context(),
+              hubauth,
+              username,
+              is_file_request,
+              args))
+    thread.start()
+    return redirect(url_for('progress', username=username))
 
 
-@current_app.route('/progress')
-def progress():
+def execute_request(context, hubauth, username, is_file_request, args):
+    """Execute the request -- either a file load or a git pull.
+
+    This process is ideally run on a separate thread, as all methods in here
+    emit broadcasts to user-specific namespaces. In this case, the namespaces
+    are uniquely identified by the user's `username`.
+    """
+    with context:
+
+        # Start the user's server if necessary
+        if not hubauth.notebook_server_exists(username):
+            return redirect('/hub/home')
+
+        if is_file_request:
+            redirection = download_file_and_redirect(
+                username=username,
+                file_url=args['file'],
+                config=current_app.config,
+            )
+        else:
+            redirection = pull_from_github(
+                username=username,
+                repo_name=args['repo'],
+                paths=args['path'],
+                config=current_app.config,
+            )
+
+        return redirection
+
+
+@current_app.route('/progress/<string:username>')
+def progress(username):
     """Page containing progress on server's running process."""
     return render_template('progress.html')
 

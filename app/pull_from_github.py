@@ -70,11 +70,9 @@ def pull_from_github(**kwargs):
                 'destination': destination,
             })
             util.emit_and_log('Redirecting to {}'.format(redirect_url))
-            util.emit_finished(username, redirect_url)
             return redirect(redirect_url)
         else:
-            util.emit_finished(username, url_for('done'))
-            return 'Pulled from repo: ' + repo_name
+            return url_for('done', repo=repo_name)
     except git.exc.GitCommandError as git_err:
         util.logger.error(git_err)
         return git_err.stderr

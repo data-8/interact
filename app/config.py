@@ -62,6 +62,8 @@ class ProductionConfig(Config):
     # base_url for the program
     BASE_URL = 'https://{}'.format(os.environ.get('BASE_URL'))
 
+    SERVER_NAME = BASE_URL
+
     # alowed file extensions
     ALLOWED_FILETYPES = ['ipynb']
 
@@ -105,6 +107,8 @@ class DevelopmentConfig(Config):
 
     # base_url for the program
     BASE_URL = 'http://localhost:8002'
+
+    SERVER_NAME = 'localhost:8002'
 
     # allowed file extensions
     ALLOWED_FILETYPES = ['ipynb']

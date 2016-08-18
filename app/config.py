@@ -8,6 +8,7 @@ class Config:
     DEBUG = False
     MOCK_AUTH = False
     MOCK_SERVER = False
+    SUPPRESS_START = False
     TESTING = False
 
     # Note: we use environ.get becauase all of these statements get run in
@@ -81,6 +82,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     MOCK_AUTH = True
     MOCK_SERVER = True
+    SUPPRESS_START = True
 
     # URL for users to access
     URL = '/'
@@ -125,6 +127,7 @@ class TestConfig(Config):
     TESTING = True
     MOCK_AUTH = True
     MOCK_SERVER = True
+    SUPPRESS_START = False
 
     # URL for users to access
     URL = '/'

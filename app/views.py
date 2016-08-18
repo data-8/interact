@@ -124,11 +124,12 @@ def start(username):
     if current_app.tracker[username] is None \
             or current_app.tracker[username].isAlive():
         return 'Process in progress.'
-    # current_app.tracker[username].start()
+    if not current_app.config['SUPPRESS_START']:
+        current_app.tracker[username].start()
     return 'Done'
 
 
 @current_app.route('/done')
 def done():
     """Page containing information about completed process."""
-    return 'done'
+    return render_template('done.html')

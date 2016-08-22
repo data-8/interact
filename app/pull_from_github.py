@@ -133,14 +133,17 @@ def _reset_deleted_files(repo):
     deleted_files = DELETED_FILE_REGEX.findall(git_cli.status())
 
     if deleted_files:
-        git_cli.checkout('--', *[_clean_path(filename) for
-                                 filename in deleted_files])
+        cleaned_filenames = [_clean_path(filename)
+                             for filename in deleted_files]
+        git_cli.checkout('--', *cleaned_filenames)
         util.logger.info('Resetted these files: {}'.format(deleted_files))
 
 
 def _clean_path(path):
-    """Clean filename so that it is command line friendly:
-    - introduces back slashes for all spaces
+    """
+    Clean filename so that it is command line friendly.
+
+    Currently just escapes spaces.
     """
     return path.replace(' ', '\ ')
 

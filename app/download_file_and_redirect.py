@@ -18,6 +18,7 @@ def download_file_and_redirect(**kwargs):
 
     assert username and file_url and config
 
+    import pdb ; pdb.set_trace()
     try:
         file_contents = _get_remote_file(config, file_url)
         destination = os.path.basename(file_url)

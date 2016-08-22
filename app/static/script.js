@@ -44,8 +44,6 @@ function openStatusSocket(username, callback) {
 }
 
 $(document).ready(function() {
-    $('.log-container').hide();
-
     $('.console_log').on('click', function() {
         if ($('.log-container').is(':visible')) {
             $('.log-container').hide();

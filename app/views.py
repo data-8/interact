@@ -69,7 +69,7 @@ def landing(args):
         for k, v in args.items():
             if not isinstance(v, str):
                 v = '&path='.join(v)
-            values.append('%s=%s' % (k, v));
+            values.append('%s=%s' % (k, v))
         return render_template(
             'landing.html',
             authenticate_link=redirection.location,
@@ -138,11 +138,17 @@ def start(username):
     """Hack - GIL prevents Python from multi-threading.
 
     Instead, the landing view above returns the loading page immediately. The
-    client then triggers this endpoint, which starts the thread"""
-    if current_app.tracker[username] is None \
-            or current_app.tracker[username].isAlive():
-        return 'Process in progress.'
+    client then triggers this endpoint, which starts the thread
+    """
+    if current_app.tracker[username] is None:
+        util.logger.info(
+            'No thread for user: {}'.format(username))
+    if current_app.tracker[username].is_alive():
+        util.logger.info(
+            'Thread already in progress for user: {}'.format(username))
     if not current_app.config['SUPPRESS_START']:
+        util.logger.info(
+            'Starting thread for user: {}'.format(username))
         current_app.tracker[username].start()
     return 'Done'
 

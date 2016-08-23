@@ -155,6 +155,8 @@ def _add_sparse_checkout_paths(repo_dir, paths):
     echo /path >> .git/info/sparse-checkout
 
     for each path in paths but also avoids duplicates.
+
+    Always makes sure .gitignore is checked out
     """
     sparsecheckout_path = os.path.join(repo_dir,
                                        '.git', 'info', 'sparse-checkout')

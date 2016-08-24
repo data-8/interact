@@ -172,8 +172,9 @@ def _add_sparse_checkout_paths(repo_dir, paths):
     util.logger.info(
         'Existing paths in sparse-checkout: {}'.format(existing_paths))
 
-    paths.append('.gitignore')
-    to_write = [path for path in paths if path not in existing_paths]
+    paths_with_gitignore = ['.gitignore'] + paths
+    to_write = [path for path in paths_with_gitignore
+                if path not in existing_paths]
     with open(sparsecheckout_path, 'a') as info_file:
         for path in to_write:
             info_file.write('/{}\n'.format(_clean_path(path)))

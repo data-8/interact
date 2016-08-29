@@ -1,3 +1,27 @@
+function updateStatus(payload) {
+    $('.status').html(payload);
+}
+
+function handleRedirect(payload) {
+    $('.status').html('Redirecting you to ' + payload);
+    window.location.href = payload;
+}
+
+function updateLog(payload) {
+    $('.log').html(payload + '\n');
+}
+
+function showError(payload) {
+    updateStatus(payload);
+}
+
+// Keep in sync with messages.py
+var messageHandlers = {
+  'LOG': updateLog,
+  'STATUS': updateStatus,
+  'REDIRECT': handleRedirect,
+  'ERROR': showError,
+};
 
 // Launches a socket connection with server-side, receiving status updates and
 // updating the page accordingly.
@@ -19,35 +43,9 @@ function openStatusSocket(username) {
     socket.onmessage = function(event) {
         message = JSON.parse(event.data);
 
-        console.log(message);
+        var handler = messageHandlers[message.type];
+        handler(message.payload);
     };
-
-    return;
-
-    /*
-    * EVENT HANDLERS
-    * These receive data from server and update pages client-side.
-    */
-
-    socket.on('status update', function(msg) {
-        $('.status').html(msg.status);
-    });
-
-    socket.on('process redirect', function(msg) {
-        console.log(msg);
-        $('.status').html('Redirecting you to ' + msg.url);
-        window.location.href = msg.url;
-    });
-
-    socket.on('log update', function(msg) {
-        console.log('received update');
-        $('.log').html(msg.log);
-    });
-
-    // Event handler for new connections
-    socket.on('connect', function() {
-        callback();
-    });
 }
 
 $(document).ready(function() {

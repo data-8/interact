@@ -2,7 +2,6 @@ import os
 import tornado.web
 from tornado.options import define
 
-from . import util
 from .handlers import LandingHandler, RequestHandler
 
 
@@ -11,8 +10,6 @@ class InteractApp(tornado.web.Application):
     Entry point for the interact app.
     """
     def __init__(self, config=None):
-        util.logger.info("Starting interact app")
-
         # Terrible hack to get config object in global namespace. This allows
         # us to use options.config to get the global config object.
         #

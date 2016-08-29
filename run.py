@@ -3,6 +3,7 @@ import tornado.ioloop
 
 from app.interact_app import InteractApp
 from app.config import config_for_env
+from app.util import logger
 
 import argparse
 
@@ -27,5 +28,7 @@ config = config_for_env(env_name)
 
 if __name__ == '__main__':
     app = InteractApp(config=config)
-    app.listen(8888)
+    app.listen(config['PORT'])
+
+    logger.info('Starting interact app on port {}'.format(config['PORT']))
     tornado.ioloop.IOLoop.current().start()

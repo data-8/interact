@@ -24,6 +24,8 @@ class Config(object):
     SUPPRESS_START = False
     TESTING = False
 
+    PORT = 8002
+
     # Note: we use environ.get becauase all of these statements get run in
     # every environment, so os.environ['FOOBAR'] will throw an error in
     # development.
@@ -41,12 +43,6 @@ class Config(object):
     # The branch that will be pulled in
     REPO_BRANCH = 'gh-pages'
 
-    # passed to app.run as kwargs
-    INIT = {
-        'host': '127.0.0.1',
-        'port': 8002
-    }
-
     # Timeout for authentication token retrieval. Used when checking if
     # notebook exists under user's account
     AUTH_TIMEOUT_S = 10
@@ -61,6 +57,8 @@ class Config(object):
 
 class ProductionConfig(Config):
     """Configuration for production"""
+
+    PORT = 8002
 
     # URL for users to access
     URL = '/hub/interact/'
@@ -87,12 +85,6 @@ class ProductionConfig(Config):
 
     # alowed file extensions
     ALLOWED_FILETYPES = ['ipynb']
-
-    # app.run parameters
-    INIT = {
-        'host': '0.0.0.0',
-        'port': 8002
-    }
 
 
 class DevelopmentConfig(Config):

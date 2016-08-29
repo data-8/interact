@@ -15,6 +15,7 @@ from tornado.websocket import WebSocketHandler
 from webargs import fields
 from webargs.tornadoparser import use_args
 
+from . import messages
 from . import util
 from .auth import HubAuth
 from .download_file_and_redirect import download_file_and_redirect
@@ -102,22 +103,28 @@ class RequestHandler(WebSocketHandler):
         # it, so this isn't very secure.
         is_file_request = ('file' in args)
 
-        if is_file_request:
-            message = yield thread_pool.submit(
-                download_file_and_redirect,
-                username=username,
-                file_url=args['file'],
-                config=options.config,
-            )
-        else:
-            message = yield thread_pool.submit(
-                pull_from_github,
-                username=username,
-                repo_name=args['repo'],
-                paths=args['path'],
-                config=options.config,
-                progress=Progress(username, self.write_message)
-            )
+        try:
+            if is_file_request:
+                message = yield thread_pool.submit(
+                    download_file_and_redirect,
+                    username=username,
+                    file_url=args['file'],
+                    config=options.config,
+                )
+            else:
+                message = yield thread_pool.submit(
+                    pull_from_github,
+                    username=username,
+                    repo_name=args['repo'],
+                    paths=args['path'],
+                    config=options.config,
+                    progress=Progress(username, self.write_message)
+                )
 
-        util.logger.info('Sent message: {}'.format(message))
-        self.write_message(message)
+            util.logger.info('Sent message: {}'.format(message))
+            self.write_message(message)
+        except Exception as e:
+            # If something bad happens, the client should see it
+            message = messages.error(str(e))
+            util.logger.error('Sent message: {}'.format(message))
+            self.write_message(message)

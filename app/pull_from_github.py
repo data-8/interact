@@ -42,6 +42,7 @@ def pull_from_github(**kwargs):
     repo_name = kwargs['repo_name']
     paths = kwargs['paths']
     config = kwargs['config']
+    progress = kwargs['progress']
 
     assert username and repo_name and paths and config
 
@@ -54,7 +55,12 @@ def pull_from_github(**kwargs):
 
     try:
         if not os.path.exists(repo_dir):
-            _initialize_repo(repo_name, repo_dir, config=config)
+            _initialize_repo(
+                repo_name,
+                repo_dir,
+                config,
+                progress=progress,
+            )
 
         _add_sparse_checkout_paths(repo_dir, paths)
 
@@ -62,7 +68,7 @@ def pull_from_github(**kwargs):
         _reset_deleted_files(repo)
         _make_commit_if_dirty(repo)
 
-        _pull_and_resolve_conflicts(repo, config=config)
+        _pull_and_resolve_conflicts(repo, config, progress=progress)
 
         if not config['GIT_REDIRECT_PATH']:
             return messages.status('Pulled from repo: ' + repo_name)
@@ -90,15 +96,19 @@ def pull_from_github(**kwargs):
             util.chown_dir(repo_dir, username)
 
 
-def _initialize_repo(repo_name, repo_dir, config=None):
+def _initialize_repo(repo_name, repo_dir, config, progress=None):
     """
     Clones repository and configures it to use sparse checkout.
     Extraneous folders will get removed later using git read-tree
     """
     util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
     # Clone repo
-    repo = git.Repo.clone_from(config['GITHUB_ORG'] + repo_name, repo_dir,
-                               branch=config['REPO_BRANCH'])
+    repo = git.Repo.clone_from(
+        config['GITHUB_ORG'] + repo_name,
+        repo_dir,
+        progress,
+        branch=config['REPO_BRANCH'],
+    )
 
     # Use sparse checkout
     config = repo.config_writer()
@@ -185,7 +195,7 @@ def _make_commit_if_dirty(repo):
         util.logger.info('Made WIP commit')
 
 
-def _pull_and_resolve_conflicts(repo, config=None):
+def _pull_and_resolve_conflicts(repo, config, progress=None):
     """
     Git pulls, resolving conflicts with -Xours
     """

@@ -107,12 +107,13 @@ class RequestHandler(WebSocketHandler):
                 config=options.config,
             )
         else:
-            message = pull_from_github(
+            message = yield thread_pool.submit(
+                pull_from_github,
                 username=username,
                 repo_name=args['repo'],
                 paths=args['path'],
                 config=options.config,
             )
 
-        util.logger.info(message)
+        util.logger.info('Sent message: {}'.format(message))
         self.write_message(message)

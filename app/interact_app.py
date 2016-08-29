@@ -1,0 +1,34 @@
+import os
+import tornado.web
+from tornado.options import define
+
+from . import util
+from .handlers import LandingHandler
+
+
+class InteractApp(tornado.web.Application):
+    """
+    Entry point for the interact app.
+    """
+    def __init__(self, config=None):
+        util.logger.info("Starting interact app")
+
+        # Terrible hack to get config object in global namespace. This allows
+        # us to use options.config to get the global config object.
+        #
+        # TODO(sam): Replace with a better solution
+        define('config', config)
+
+        base_url = config['URL']
+
+        handlers = [
+            (base_url, LandingHandler),
+        ]
+
+        settings = dict(
+            debug=True,
+            template_path=os.path.join(os.path.dirname(__file__), "templates"),
+            static_path=os.path.join(os.path.dirname(__file__), "static"),
+        )
+
+        super(InteractApp, self).__init__(handlers, **settings)

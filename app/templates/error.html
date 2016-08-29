@@ -7,7 +7,8 @@
     <p class="reversed">Status: <span class="status">Error</span></p>
     <p><a href="{{ link_retry }}" class="button">Retry</a></p>
     <div class="col-md-2"></div>
-    <pre class="col-md-8"><code>{{ log or 'There are no logs to
-        show.' }}</code></pre>
+    <pre class="col-md-8"><code>
+        {{ log or 'There are no logs to show.' }}
+    </code></pre>
 </main>
-{% endblock %}
+{% end %}

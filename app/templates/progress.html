@@ -1,20 +1,21 @@
 {% extends "base.html" %}
 {% block body %}
 <main class="progress-content">
-{% if reusing_thread %}
-<p class="banner">You already started a thread! It's shown below.</p>
-{% endif %}
+    {% if reusing_thread %}
+        <p class="banner">You already started a thread! It's shown below.</p>
+    {% end %}
+
     <p><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></p>
     <h1>Data8 Interact Server</h1>
     <p class="reversed">Est. time left: <span class="time">30 seconds</span>
         &middot;
     Status:
         <span class="status">Working...</span></p>
-    <p><a href="#" class="button console_log">Show Console Log</a></p>
+    <p><a href="#" class="button console_log">Hide Console Log</a></p>
     <div class="col-md-2"></div>
     <pre class="log-container col-md-8"><code class="log">There are no logs to show.</code></pre>
 </main>
-{% endblock %}
+{% end %}
 
 {% block postbody %}
 <script>
@@ -24,4 +25,4 @@
         });
     });
 </script>
-{% endblock %}
+{% end %}

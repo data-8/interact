@@ -6,8 +6,11 @@
              new content once pull or clone is complete
 """
 from operator import xor
+from concurrent.futures import ThreadPoolExecutor
 
+from tornado import gen
 from tornado.web import RequestHandler
+from tornado.websocket import WebSocketHandler
 from tornado.options import options
 from webargs import fields
 from webargs.tornadoparser import use_args
@@ -16,6 +19,8 @@ from . import util
 from .auth import HubAuth
 from .download_file_and_redirect import download_file_and_redirect
 from .pull_from_github import pull_from_github
+
+thread_pool = ThreadPoolExecutor(max_workers=4)
 
 url_args = {
     'file': fields.Str(),
@@ -77,3 +82,27 @@ class LandingHandler(RequestHandler):
             username=username,
             reusing_thread=False
         )
+
+
+class RequestHandler(WebSocketHandler):
+    """
+    Handles the long-running websocket connection that the client makes after
+    hitting the landing page.
+
+    This is where the important parts of the logic actually happen so we don't
+    block the main thread.
+    """
+    @gen.coroutine
+    @use_args(url_args)
+    def open(self, username, req_args):
+        util.logger.info('{}: Websocket connected'.format(username))
+        response = yield thread_pool.submit(sleep)
+        util.logger.info(response)
+
+        self.write_message({'hello': response})
+
+
+import time
+def sleep():
+    time.sleep(5)
+    return 'world'

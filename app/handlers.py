@@ -94,15 +94,25 @@ class RequestHandler(WebSocketHandler):
     """
     @gen.coroutine
     @use_args(url_args)
-    def open(self, username, req_args):
-        util.logger.info('{}: Websocket connected'.format(username))
-        response = yield thread_pool.submit(sleep)
-        util.logger.info(response)
+    def open(self, username, args):
+        util.logger.info('({}) Websocket connected'.format(username))
 
-        self.write_message({'hello': response})
+        is_file_request = ('file' in args)
 
+        if is_file_request:
+            message = yield thread_pool.submit(
+                download_file_and_redirect,
+                username=username,
+                file_url=args['file'],
+                config=options.config,
+            )
+        else:
+            message = pull_from_github(
+                username=username,
+                repo_name=args['repo'],
+                paths=args['path'],
+                config=options.config,
+            )
 
-import time
-def sleep():
-    time.sleep(5)
-    return 'world'
+        util.logger.info(message)
+        self.write_message(message)

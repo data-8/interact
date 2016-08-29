@@ -9,15 +9,16 @@ from operator import xor
 from concurrent.futures import ThreadPoolExecutor
 
 from tornado import gen
+from tornado.options import options
 from tornado.web import RequestHandler
 from tornado.websocket import WebSocketHandler
-from tornado.options import options
 from webargs import fields
 from webargs.tornadoparser import use_args
 
 from . import util
 from .auth import HubAuth
 from .download_file_and_redirect import download_file_and_redirect
+from .git_progress import Progress
 from .pull_from_github import pull_from_github
 
 thread_pool = ThreadPoolExecutor(max_workers=4)
@@ -97,6 +98,8 @@ class RequestHandler(WebSocketHandler):
     def open(self, username, args):
         util.logger.info('({}) Websocket connected'.format(username))
 
+        # We don't do validation since we assume that the LandingHandler did
+        # it, so this isn't very secure.
         is_file_request = ('file' in args)
 
         if is_file_request:
@@ -113,6 +116,7 @@ class RequestHandler(WebSocketHandler):
                 repo_name=args['repo'],
                 paths=args['path'],
                 config=options.config,
+                progress=Progress(username, self.write_message)
             )
 
         util.logger.info('Sent message: {}'.format(message))

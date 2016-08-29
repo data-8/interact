@@ -2,8 +2,6 @@ import os
 import shutil
 import logging
 
-from flask_socketio import emit
-
 """
 Format for downloading zip files of Git folders
 
@@ -17,7 +15,7 @@ GIT_DOWNLOAD_LINK_FORMAT = 'https://minhaskamal.github.io/DownGit/#/home?url' \
 
 # Log all messages by default
 logging.basicConfig(
-    format='[%(asctime)s] (%(threadName)-10s): %(levelname)s -- %(message)s',
+    format='[%(asctime)s]: %(levelname)s -- %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p',
     level=logging.DEBUG)
 logger = logging.getLogger('app')

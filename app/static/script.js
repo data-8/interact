@@ -1,7 +1,7 @@
 
 // Launches a socket connection with server-side, receiving status updates and
 // updating the page accordingly.
-function openStatusSocket(username, callback) {
+function openStatusSocket(username) {
     url = 'ws://' + window.location.hostname + ':' + window.location.port +
         '/socket/' + username +
         window.location.search;
@@ -12,9 +12,14 @@ function openStatusSocket(username, callback) {
         console.log('[Client] Connected to url: ' + url);
     };
 
-    socket.onmessage = function(message) {
-        data = JSON.parse(message.data);
-        console.log(data);
+    /**
+     * This function takes in a message from messages.py as a JSON string.
+     * It calls the corresponding handler for each message type.
+     */
+    socket.onmessage = function(event) {
+        message = JSON.parse(event.data);
+
+        console.log(message);
     };
 
     return;

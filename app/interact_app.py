@@ -3,7 +3,7 @@ import tornado.web
 from tornado.options import define
 
 from . import util
-from .handlers import LandingHandler
+from .handlers import LandingHandler, RequestHandler
 
 
 class InteractApp(tornado.web.Application):
@@ -20,9 +20,11 @@ class InteractApp(tornado.web.Application):
         define('config', config)
 
         base_url = config['URL']
+        socket_url = config['URL'] + 'socket/(\w+)'
 
         handlers = [
             (base_url, LandingHandler),
+            (socket_url, RequestHandler),
         ]
 
         settings = dict(

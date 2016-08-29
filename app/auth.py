@@ -6,22 +6,32 @@ https://github.com/jupyter/nbgrader/blob/master/nbgrader/auth/hubauth.py
 
 """
 import json
-import logging
 import requests
 
-from flask import abort
-from flask import current_app
-from flask import request
-from flask import redirect
 from requests.exceptions import ReadTimeout
 
+from tornado.web import HTTPError
+from tornado.web import RequestHandler
 
-class HubAuth:
+from . import util
+
+
+# Backfills for flask methods
+# TODO(sam): Remove once flask is completely phased out
+
+
+def abort(*args, **kwargs):
+    raise HTTPError(*args, **kwargs)
+
+redirect = RequestHandler.redirect
+
+
+class HubAuth(object):
     """Jupyter hub authenticator."""
 
-    def __init__(self):
-        self.config = current_app.config
-        self.log = logging.getLogger('interact')
+    def __init__(self, config):
+        self.config = config
+        self.log = util.logger
 
         # base url for the website
         self.hub_base_url = self.config['BASE_URL']
@@ -55,7 +65,7 @@ class HubAuth:
                 'Authorization': 'token %s' % token
             },
             data=data,
-            timeout=current_app.config['AUTH_TIMEOUT_S'])
+            timeout=self.config['AUTH_TIMEOUT_S'])
 
     def authenticate(self):
         """Authenticate a request.
@@ -66,9 +76,9 @@ class HubAuth:
 
         # If auth cookie doesn't exist, redirect to the login page with
         # next set to redirect back to the this page.
-        if self.hubapi_cookie not in request.cookies:
+        if self.hubapi_cookie not in RequestHandler.cookies:
             return redirect(self.hub_base_url + '/hub?next=' + self.remap_url)
-        cookie = request.cookies[self.hubapi_cookie]
+        cookie = RequestHandler.cookies[self.hubapi_cookie]
 
         # Check with the Hub to see if the auth cookie is valid.
         response = self._hubapi_request('/hub/api/authorizations/cookie/' + self.hubapi_cookie + '/' + cookie)
@@ -115,7 +125,7 @@ class HubAuth:
     def notebook_server_exists(self, user):
         """Does the notebook server exist?"""
 
-        if current_app.config['MOCK_SERVER']:
+        if self.config['MOCK_SERVER']:
             return True
 
         # first check if the server is running

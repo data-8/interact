@@ -1,7 +1,20 @@
 import os
 
 
-class Config:
+def config_for_env(env_name):
+    """
+    Takes in an environment and returns a corresponding Config object.
+    """
+    name_to_env = {
+        'production': ProductionConfig(),
+        'development': DevelopmentConfig(),
+        'testing': TestConfig(),
+    }
+
+    return name_to_env[env_name]
+
+
+class Config(object):
     """General configurations"""
 
     # testing parameters
@@ -21,8 +34,8 @@ class Config:
     # Github API token; used to pull private repos
     GITHUB_API_TOKEN = os.environ.get('GITHUB_API_TOKEN', default='')
 
-    # The organization URL on Github. The API token is filled in so that private
-    # repos can be pulled
+    # The organization URL on Github. The API token is filled in so that
+    # private repos can be pulled
     GITHUB_ORG = 'https://{}@github.com/data-8/'.format(GITHUB_API_TOKEN)
 
     # The branch that will be pulled in
@@ -34,9 +47,16 @@ class Config:
         'port': 8002
     }
 
-    # Timeout for authentication token retrieval. Used when checking if notebook
-    # exists under user's account
+    # Timeout for authentication token retrieval. Used when checking if
+    # notebook exists under user's account
     AUTH_TIMEOUT_S = 10
+
+    def __getitem__(self, attr):
+        """
+        Temporary hack in order to maintain Flask config-like config usage.
+        TODO(sam): Replace config classes with plain dicts or attrs
+        """
+        return getattr(self, attr)
 
 
 class ProductionConfig(Config):
@@ -115,8 +135,8 @@ class DevelopmentConfig(Config):
     # allowed file extensions
     ALLOWED_FILETYPES = ['ipynb']
 
-    # Timeout for authentication token retrieval. Used when checking if notebook
-    # exists under user's account
+    # Timeout for authentication token retrieval. Used when checking if
+    # notebook exists under user's account
     AUTH_TIMEOUT_S = 0.01
 
 

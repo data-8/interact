@@ -22,6 +22,7 @@ class InteractApp(tornado.web.Application):
         settings = dict(
             debug=True,
             serve_traceback=True,
+            compiled_template_cache=False,
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path="/srv/interact/app/static",
             static_url_prefix="/hub/interact/static/",

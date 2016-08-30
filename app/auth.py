@@ -67,7 +67,7 @@ class HubAuth(object):
             data=data,
             timeout=self.config['AUTH_TIMEOUT_S'])
 
-    def authenticate(self):
+    def authenticate(self, request):
         """Authenticate a request.
         Returns username or flask redirect."""
 
@@ -76,9 +76,9 @@ class HubAuth(object):
 
         # If auth cookie doesn't exist, redirect to the login page with
         # next set to redirect back to the this page.
-        if self.hubapi_cookie not in RequestHandler.cookies:
-            return redirect(self.hub_base_url + '/hub?next=' + self.remap_url)
-        cookie = RequestHandler.cookies[self.hubapi_cookie]
+        if self.hubapi_cookie not in request.cookies:
+            return redirect(self.hub_base_url + '/hub/login?next=' + self.remap_url)
+        cookie = request.cookies[self.hubapi_cookie].value
 
         # Check with the Hub to see if the auth cookie is valid.
         response = self._hubapi_request('/hub/api/authorizations/cookie/' + self.hubapi_cookie + '/' + cookie)

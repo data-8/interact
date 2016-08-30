@@ -19,15 +19,18 @@ class InteractApp(tornado.web.Application):
         base_url = config['URL']
         socket_url = config['URL'] + 'socket/(\w+)'
 
+        settings = dict(
+            debug=True,
+            serve_traceback=True,
+            template_path=os.path.join(os.path.dirname(__file__), "templates"),
+            static_path="/srv/interact/app/static",
+            static_url_prefix="/hub/interact/static/",
+        )
+
+        static_url = "r{}/static/(.*)".format(base_url)
         handlers = [
             (base_url, LandingHandler),
             (socket_url, RequestHandler),
         ]
-
-        settings = dict(
-            debug=True,
-            template_path=os.path.join(os.path.dirname(__file__), "templates"),
-            static_path=os.path.join(os.path.dirname(__file__), "static"),
-        )
 
         super(InteractApp, self).__init__(handlers, **settings)

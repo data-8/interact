@@ -26,8 +26,8 @@ var messageHandlers = {
 // Launches a socket connection with server-side, receiving status updates and
 // updating the page accordingly.
 function openStatusSocket(username) {
-    url = 'ws://' + window.location.hostname + ':' + window.location.port +
-        '/socket/' + username +
+    url = 'wss://' + window.location.hostname + ':' + window.location.port +
+        '/hub/interact/socket/' + username +
         window.location.search;
 
     var socket = new WebSocket(url);

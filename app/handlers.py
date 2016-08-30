@@ -66,24 +66,23 @@ class LandingHandler(RequestHandler):
         hubauth = HubAuth(options.config)
         # authenticate() returns either a username as a string or a redirect
         redirection = username = hubauth.authenticate(self.request)
-        is_authenticated = isinstance(username, str)
+        util.logger.info("authenticate returned: {}".format(redirection))
+        is_authenticated = not redirection.startswith('/') #isinstance(username, str)
         if not is_authenticated:
             values = []
             for k, v in args.items():
                 if not isinstance(v, str):
                     v = '&path='.join(v)
                 values.append('%s=%s' % (k, v))
+            util.logger.info("rendering landing page")
             return self.render(
                 'landing.html',
-                authenticate_link=redirection.location,
+                authenticate_link=redirection,
                 download_links=util.generate_git_download_link(args),
                 query='&'.join(values))
 
-        self.render(
-            'progress.html',
-            username=username,
-            reusing_thread=False
-        )
+        util.logger.info("rendering progress page")
+        self.render("progress.html", username=username, reusing_thread=False)
 
 
 class RequestHandler(WebSocketHandler):

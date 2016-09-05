@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Initializer for app"""
 from app import create_app
 
@@ -17,7 +18,7 @@ for conf in ['production', 'development', 'test']:
     arg = getattr(args, conf)
     config = conf if arg else config
 
-app = create_app(config=config)
+application = create_app(config=config)
 
 if __name__ == '__main__':
-    app.run(**app.config['INIT'])
+    application.run(**app.config['INIT'])

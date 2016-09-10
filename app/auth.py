@@ -63,7 +63,10 @@ class HubAuth(object):
                 'Authorization': 'token %s' % token
             },
             data=data,
-            timeout=self.config['AUTH_TIMEOUT_S'])
+            timeout=self.config['AUTH_TIMEOUT_S'],
+            # TODO: Remove once we don't need development deployment anymore
+            verify=False,
+        )
 
     def authenticate(self, request):
         """Authenticate a request.

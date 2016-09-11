@@ -17,11 +17,13 @@ class InteractApp(tornado.web.Application):
         define('config', config)
 
         # Assumes config['URL'] has a trailing slash
-        base_url = config['URL'][:-1]
-        socket_url = config['URL'] + r'socket/(\w+)'
+        base_url = config['URL']
+        base_url_without_slash = base_url[:-1]
+        socket_url = base_url + r'socket/(\w+)'
 
         handlers = [
             (base_url, LandingHandler),
+            (base_url_without_slash, LandingHandler),
             (socket_url, RequestHandler),
         ]
 

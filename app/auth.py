@@ -64,8 +64,8 @@ class HubAuth(object):
             },
             data=data,
             timeout=self.config['AUTH_TIMEOUT_S'],
-            # TODO: Remove once we don't need development deployment anymore
-            verify=False,
+            # Don't perform SSL verification in development
+            verify=self.config['MOCK_AUTH'],
         )
 
     def authenticate(self, request):

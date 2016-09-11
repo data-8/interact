@@ -204,7 +204,7 @@ def _pull_and_resolve_conflicts(repo, config, progress=None):
     git_cli = repo.git
 
     # Fetch then merge, resolving conflicts by keeping original content
-    git_cli.fetch('origin', config['REPO_BRANCH'])
+    repo.remote(name='origin').fetch(progress=progress)
     git_cli.merge('-Xours', 'origin/' + config['REPO_BRANCH'])
 
     # Ensure only files/folders in sparse-checkout are left

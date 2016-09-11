@@ -68,8 +68,9 @@ class LandingHandler(RequestHandler):
         # authenticate() returns either a username as a string or a redirect
         redirection = username = hubauth.authenticate(self.request)
         util.logger.info("authenticate returned: {}".format(redirection))
-        is_authenticated = not redirection.startswith('/') #isinstance(username, str)
-        if not is_authenticated:
+        is_redirect = (redirection.startswith('/') or
+                       redirection.startswith('http'))
+        if is_redirect:
             values = []
             for k, v in args.items():
                 if not isinstance(v, str):

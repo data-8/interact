@@ -16,7 +16,8 @@ class InteractApp(tornado.web.Application):
         # TODO(sam): Replace with a better solution
         define('config', config)
 
-        base_url = config['URL']
+        # Assumes config['URL'] has a trailing slash
+        base_url = config['URL'][:-1]
         socket_url = config['URL'] + r'socket/(\w+)'
 
         handlers = [

@@ -1,23 +1,34 @@
 """Initializer for app"""
-from app import create_app
+import tornado.ioloop
+
+from app.interact_app import InteractApp
+from app.config import config_for_env
+from app.util import logger
 
 import argparse
 
-parser = argparse.ArgumentParser(description='Controls deployment configuration')
+parser = argparse.ArgumentParser(
+    description='Controls deployment configuration')
 parser.add_argument('--production', action='store_true',
-                    default=False, help='Launch in production mode')
+                    default=True, help='Launch in production mode')
 parser.add_argument('--development', action='store_true',
                     default=False, help='Launch in developer mode')
 parser.add_argument('--test', action='store_true',
                     default=False, help='*Used only by automated tests*')
 
-args, config = parser.parse_args(), 'production'
+args = parser.parse_args()
+env_name = 'production'
 
 for conf in ['production', 'development', 'test']:
     arg = getattr(args, conf)
-    config = conf if arg else config
+    env_name = conf if arg else env_name
 
-app = create_app(config=config)
+config = config_for_env(env_name)
+
 
 if __name__ == '__main__':
-    app.run(**app.config['INIT'])
+    app = InteractApp(config=config)
+    app.listen(config['PORT'])
+
+    logger.info('Starting interact app on port {}'.format(config['PORT']))
+    tornado.ioloop.IOLoop.current().start()

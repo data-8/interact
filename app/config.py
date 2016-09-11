@@ -1,12 +1,30 @@
 import os
 
-class Config:
+
+def config_for_env(env_name):
+    """
+    Takes in an environment and returns a corresponding Config object.
+    """
+    name_to_env = {
+        'production': ProductionConfig(),
+        'development': DevelopmentConfig(),
+        'testing': TestConfig(),
+    }
+
+    return name_to_env[env_name]
+
+
+class Config(object):
     """General configurations"""
 
     # testing parameters
     DEBUG = False
     MOCK_AUTH = False
+    MOCK_SERVER = False
+    SUPPRESS_START = False
     TESTING = False
+
+    PORT = 8002
 
     # Note: we use environ.get becauase all of these statements get run in
     # every environment, so os.environ['FOOBAR'] will throw an error in
@@ -18,25 +36,32 @@ class Config:
     # Github API token; used to pull private repos
     GITHUB_API_TOKEN = os.environ.get('GITHUB_API_TOKEN', default='')
 
-    # The organization URL on Github. The API token is filled in so that private
-    # repos can be pulled
+    # The organization URL on Github. The API token is filled in so that
+    # private repos can be pulled
     GITHUB_ORG = 'https://{}@github.com/data-8/'.format(GITHUB_API_TOKEN)
 
     # The branch that will be pulled in
     REPO_BRANCH = 'gh-pages'
 
-    # passed to app.run as kwargs
-    INIT = {
-        'host': '127.0.0.1',
-        'port': 8002
-    }
+    # Timeout for authentication token retrieval. Used when checking if
+    # notebook exists under user's account
+    AUTH_TIMEOUT_S = 10
+
+    def __getitem__(self, attr):
+        """
+        Temporary hack in order to maintain Flask config-like config usage.
+        TODO(sam): Replace config classes with plain dicts or attrs
+        """
+        return getattr(self, attr)
 
 
 class ProductionConfig(Config):
     """Configuration for production"""
 
-    # URL for users to access
-    URL = '/hub/interact/'
+    PORT = 8002
+
+    # URL for users to access. Make sure it has a trailing slash.
+    URL = r'/hub/interact/'
 
     # Cookie name?
     COOKIE = 'jupyter-hub-token'
@@ -56,14 +81,10 @@ class ProductionConfig(Config):
     # base_url for the program
     BASE_URL = 'https://{}'.format(os.environ.get('BASE_URL'))
 
+    SERVER_NAME = BASE_URL
+
     # alowed file extensions
     ALLOWED_FILETYPES = ['ipynb']
-
-    # app.run parameters
-    INIT = {
-        'host': '0.0.0.0',
-        'port': 8002
-    }
 
 
 class DevelopmentConfig(Config):
@@ -72,8 +93,10 @@ class DevelopmentConfig(Config):
     # testing parameters
     DEBUG = True
     MOCK_AUTH = True
+    MOCK_SERVER = True
+    SUPPRESS_START = False
 
-    # URL for users to access
+    # URL for users to access. Make sure it has a trailing slash.
     URL = '/'
 
     # JupyterHub API token
@@ -99,8 +122,14 @@ class DevelopmentConfig(Config):
     # base_url for the program
     BASE_URL = 'http://localhost:8002'
 
+    SERVER_NAME = 'localhost:8002'
+
     # allowed file extensions
     ALLOWED_FILETYPES = ['ipynb']
+
+    # Timeout for authentication token retrieval. Used when checking if
+    # notebook exists under user's account
+    AUTH_TIMEOUT_S = 0.01
 
 
 class TestConfig(Config):
@@ -109,8 +138,10 @@ class TestConfig(Config):
     # testing parameters
     TESTING = True
     MOCK_AUTH = True
+    MOCK_SERVER = True
+    SUPPRESS_START = False
 
-    # URL for users to access
+    # URL for users to access. Make sure it has a trailing slash.
     URL = '/'
 
     # JupyterHub API token

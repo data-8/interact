@@ -1,9 +1,9 @@
 import os
 from urllib.error import HTTPError
 from urllib.request import urlopen
-from flask import redirect
 
 from . import util
+from . import messages
 
 
 def download_file_and_redirect(**kwargs):
@@ -11,6 +11,8 @@ def download_file_and_redirect(**kwargs):
     Downloads the file from file_url and saves it into the COPY_PATH in config.
 
     Must be called with username, file_url, config keyword args.
+
+    Returns a message from messages.py.
     """
     username = kwargs['username']
     file_url = kwargs['file_url']
@@ -26,23 +28,30 @@ def download_file_and_redirect(**kwargs):
         # destination might change if the file results in a copy
         destination = _write_to_destination(
             file_contents, path, destination, config)
-        # print(' * Wrote {}'.format(path + '/' + destination))
         util.chown(path, destination)
 
         redirect_url = util.construct_path(config['FILE_REDIRECT_PATH'], {
             'username': username,
             'destination': destination,
         })
-        return redirect(redirect_url)
+
+        util.logger.info('({}) pulled file: {}'.format(username, file_url))
+        return messages.redirect(redirect_url)
 
     except HTTPError:
-        return 'Source file "{}" does not exist or is not accessible.'.\
-            format(file_url)
+        error = ('Source file "{}" does not exist or is not accessible.'
+                 .format(file_url))
+        return messages.error(error)
+    except Exception as e:
+        error = ('Unhandled error: {}'.format(e))
+        return messages.error(error)
 
 
 def _get_remote_file(config, source):
     """Fetches file, throws an HTTPError if the file is not accessible."""
-    assert source.startswith(config['ALLOWED_DOMAIN'])
+    if not source.startswith(config['ALLOWED_DOMAIN']):
+        raise ValueError('File not from allowed domain')
+
     return urlopen(source).read().decode('utf-8')
 
 
@@ -50,8 +59,9 @@ def _write_to_destination(file_contents, path, destination, config):
     """Write file to destination on server."""
 
     # check that this filetype is allowed (ideally, not an executable)
-    assert '.' in destination and \
-        destination.split('.')[-1] in config['ALLOWED_FILETYPES']
+    file_type = destination.split('.')[-1]
+    if '.' not in destination or file_type not in config['ALLOWED_FILETYPES']:
+        raise ValueError('File type {} not allowed'.format(file_type))
 
     if os.path.exists(os.path.join(path, destination)):
         root = destination.rsplit('.', 1)[0]

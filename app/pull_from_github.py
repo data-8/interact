@@ -1,10 +1,10 @@
 import os
 import re
 
-from flask import redirect
 import git
 
 from . import util
+from . import messages
 
 
 def pull_from_github(**kwargs):
@@ -34,11 +34,15 @@ def pull_from_github(**kwargs):
             textbook or health-connector.
         paths (list of str): The folders and file names to pull.
         config (Config): The config for this environment.
+
+    Returns:
+        A message object from messages.py
     """
     username = kwargs['username']
     repo_name = kwargs['repo_name']
     paths = kwargs['paths']
     config = kwargs['config']
+    progress = kwargs['progress']
 
     assert username and repo_name and paths and config
 
@@ -51,7 +55,12 @@ def pull_from_github(**kwargs):
 
     try:
         if not os.path.exists(repo_dir):
-            _initialize_repo(repo_name, repo_dir, config=config)
+            _initialize_repo(
+                repo_name,
+                repo_dir,
+                config,
+                progress=progress,
+            )
 
         _add_sparse_checkout_paths(repo_dir, paths)
 
@@ -59,22 +68,24 @@ def pull_from_github(**kwargs):
         _reset_deleted_files(repo)
         _make_commit_if_dirty(repo)
 
-        _pull_and_resolve_conflicts(repo, config=config)
+        _pull_and_resolve_conflicts(repo, config, progress=progress)
 
-        if config['GIT_REDIRECT_PATH']:
-            # Redirect to the final path given in the URL
-            destination = os.path.join(repo_name, paths[-1])
-            redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
-                'username': username,
-                'destination': destination,
-            })
-            util.logger.info('Redirecting to {}'.format(redirect_url))
-            return redirect(redirect_url)
-        else:
-            return 'Pulled from repo: ' + repo_name
+        if not config['GIT_REDIRECT_PATH']:
+            return messages.status('Pulled from repo: ' + repo_name)
+
+        # Redirect to the final path given in the URL
+        destination = os.path.join(repo_name, paths[-1])
+        redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
+            'username': username,
+            'destination': destination,
+        })
+        util.logger.info('Redirecting to {}'.format(redirect_url))
+        return messages.redirect(redirect_url)
+
     except git.exc.GitCommandError as git_err:
         util.logger.error(git_err)
-        return git_err.stderr
+        return messages.error(git_err.stderr.decode('UTF-8'))
+
     finally:
         # Always set ownership to username in case of a git failure
         # In development, don't run the chown since the sample user doesn't
@@ -84,15 +95,20 @@ def pull_from_github(**kwargs):
         else:
             util.chown_dir(repo_dir, username)
 
-def _initialize_repo(repo_name, repo_dir, config=None):
+
+def _initialize_repo(repo_name, repo_dir, config, progress=None):
     """
     Clones repository and configures it to use sparse checkout.
     Extraneous folders will get removed later using git read-tree
     """
     util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
     # Clone repo
-    repo = git.Repo.clone_from(config['GITHUB_ORG'] + repo_name, repo_dir,
-                               branch=config['REPO_BRANCH'])
+    repo = git.Repo.clone_from(
+        config['GITHUB_ORG'] + repo_name,
+        repo_dir,
+        progress,
+        branch=config['REPO_BRANCH'],
+    )
 
     # Use sparse checkout
     config = repo.config_writer()
@@ -162,7 +178,7 @@ def _add_sparse_checkout_paths(repo_dir, paths):
                 if path not in existing_paths]
     with open(sparsecheckout_path, 'a') as info_file:
         for path in to_write:
-            info_file.write('/{}\n'.format(path))
+            info_file.write('/{}\n'.format(_clean_path(path)))
 
     util.logger.info('{} written to sparse-checkout'.format(to_write))
 
@@ -179,7 +195,7 @@ def _make_commit_if_dirty(repo):
         util.logger.info('Made WIP commit')
 
 
-def _pull_and_resolve_conflicts(repo, config=None):
+def _pull_and_resolve_conflicts(repo, config, progress=None):
     """
     Git pulls, resolving conflicts with -Xours
     """
@@ -188,7 +204,7 @@ def _pull_and_resolve_conflicts(repo, config=None):
     git_cli = repo.git
 
     # Fetch then merge, resolving conflicts by keeping original content
-    git_cli.fetch('origin', config['REPO_BRANCH'])
+    repo.remote(name='origin').fetch(progress=progress)
     git_cli.merge('-Xours', 'origin/' + config['REPO_BRANCH'])
 
     # Ensure only files/folders in sparse-checkout are left

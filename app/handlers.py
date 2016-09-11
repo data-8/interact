@@ -5,6 +5,7 @@
 - Progress : page containing live updates on server's progress, redirects to
              new content once pull or clone is complete
 """
+import json
 from operator import xor
 from concurrent.futures import ThreadPoolExecutor
 
@@ -82,9 +83,16 @@ class LandingHandler(RequestHandler):
                 query='&'.join(values))
 
         util.logger.info("rendering progress page")
-        self.render("progress.html",
-                    username=username,
-                    base_url=options.config['URL'])
+
+        # These config options are passed into the `openStatusSocket`
+        # JS function.
+        socket_args = json.dumps({
+            'is_development': options.config['DEBUG'],
+            'base_url': options.config['URL'],
+            'username': username,
+        })
+
+        self.render("progress.html", socket_args=socket_args)
 
 
 class RequestHandler(WebSocketHandler):

@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
 <main class="progress-content">
-    {% if reusing_thread %}
-        <p class="banner">You already started a thread! It's shown below.</p>
-    {% end %}
-
     <p><i class="fa fa-refresh fa-spin fa-3x fa-fw"></i></p>
     <h1>Data8 Interact Server</h1>
     <p class="reversed">Est. time left: <span class="time">30 seconds</span>
@@ -20,7 +16,7 @@
 {% block postbody %}
 <script>
     $(document).ready(function() {
-        openStatusSocket('{{ username }}');
+        openStatusSocket({% raw socket_args %});
     });
 </script>
 {% end %}

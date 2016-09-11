@@ -60,7 +60,7 @@ class ProductionConfig(Config):
 
     PORT = 8002
 
-    # URL for users to access
+    # URL for users to access. Make sure it has a trailing slash.
     URL = r'/hub/interact/'
 
     # Cookie name?
@@ -96,7 +96,7 @@ class DevelopmentConfig(Config):
     MOCK_SERVER = True
     SUPPRESS_START = False
 
-    # URL for users to access
+    # URL for users to access. Make sure it has a trailing slash.
     URL = '/'
 
     # JupyterHub API token
@@ -141,7 +141,7 @@ class TestConfig(Config):
     MOCK_SERVER = True
     SUPPRESS_START = False
 
-    # URL for users to access
+    # URL for users to access. Make sure it has a trailing slash.
     URL = '/'
 
     # JupyterHub API token

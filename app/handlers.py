@@ -82,7 +82,9 @@ class LandingHandler(RequestHandler):
                 query='&'.join(values))
 
         util.logger.info("rendering progress page")
-        self.render("progress.html", username=username, reusing_thread=False)
+        self.render("progress.html",
+                    username=username,
+                    base_url=options.config['URL'])
 
 
 class RequestHandler(WebSocketHandler):

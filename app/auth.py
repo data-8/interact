@@ -105,7 +105,7 @@ class HubAuth(object):
         # this will happen if jupyterhub has been restarted but the user cookie
         # is still the old one, in which case we should reauthenticate
         elif response.status_code == 404:
-            self.log.warn("Failed to check authorization, this probably means the user's cookie token is invalid or expired: [%i] %s", response.status_code, response.reason)
+            self.log.info("Failed to check authorization, this probably means the user's cookie token is invalid or expired: [%i] %s", response.status_code, response.reason)
             return self.hub_base_url + '/hub/login?next=' + self.remap_url
             #return request.redirect(self.hub_base_url + '/hub?next=' + self.remap_url)
 

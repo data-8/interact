@@ -77,10 +77,13 @@ class LandingHandler(RequestHandler):
                     v = '&path='.join(v)
                 values.append('%s=%s' % (k, v))
             util.logger.info("rendering landing page")
+            download_links = (util.generate_git_download_link(args)
+                              if is_git_request
+                              else [args['file']])
             return self.render(
                 'landing.html',
                 authenticate_link=redirection,
-                download_links=util.generate_git_download_link(args),
+                download_links=download_links,
                 query='&'.join(values))
 
         util.logger.info("rendering progress page")

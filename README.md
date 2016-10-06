@@ -1,6 +1,5 @@
-# DS8-Interact
-Side server for UC Berkeley DS8's JuypterHub deployment to copy remote notebooks
-into user accounts
+# Interact
+Interact is a JupyterHub hub-side service that can import remote notebooks into user accounts.
 
 # Getting Started
 
